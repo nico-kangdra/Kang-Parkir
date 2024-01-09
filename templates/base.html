@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Court Booking App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Reset some default styles */
+        body,
+        h1,
+        h2,
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #d8e5f4;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a img {
+            max-width: 175px;
+            margin-right: 20px;
+        }
+
+        .nav-buttons ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .nav-buttons ul li {
+            margin-right: 10px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #subHeader {
+            display: none;
+        }
+
+        @media screen and (max-width: 570px) {
+            .nav-buttons ul {
+                display: none;
+            }
+
+            header a {
+                margin: auto;
+            }
+
+            #subHeader {
+                display: flex;
+                background-color: #d8e5f4;
+                padding: 10px 20px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #subHeader a {
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/">
+            <img src="{{url_for('static', filename='logo.png')}}" alt="SPORT IT ON">
+        </a>
+        <nav>
+            <div class="nav-buttons">
+                <ul>
+                    {% block ul %} {% endblock ul %}
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div id="subHeader">
+        {% block sub %} {% endblock sub %}
+    </div>
+    <main>
+        {% block main %} {% endblock main %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Court Booking App</p>
+    </footer>
+</body>
+
+</html>

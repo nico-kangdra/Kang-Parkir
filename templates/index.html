@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block ul %}
+<li><a href="/" class="btn btn-dark">Home</a></li>
+<li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+<li><a href="/booking" class="btn btn-outline-dark">Bookings</a></li>
+<li><a href="/profile" class="btn btn-outline-dark">Profile</a></li>
+{% endblock ul %}
+{% block sub %}
+<a href="/" class="btn btn-dark">Home</a>
+<a href="/courts" class="btn btn-outline-dark">Courts</a>
+<a href="/booking" class="btn btn-outline-dark">Bookings</a>
+<a href="/profile" class="btn btn-outline-dark">Profile</a>
+{% endblock sub %}
+{% block main %}
+<style>
+  .carousel-item img {
+    max-height: 450px;
+    object-fit: contain;
+  }
+
+  .carousel-inner a {
+    opacity: 1;
+  }
+</style>
+<main>
+  <div id="carouselSection" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+      <li data-target="#carouselSection" data-slide-to="0" class="active"></li>
+      <li data-target="#carouselSection" data-slide-to="1"></li>
+      <li data-target="#carouselSection" data-slide-to="2"></li>
+      <li data-target="#carouselSection" data-slide-to="3"></li>
+    </ol>
+    <div class="carousel-inner">
+      {% for img in images %}
+      <div class="carousel-item {% if loop.first %} active {% endif %}">
+        <img src="{{url_for('static', filename='carousel/'+img)}}" class="d-block w-100" alt="Slide 1">
+      </div>
+      {% endfor %}
+    </div>
+    <a class="carousel-control-prev" href="#carouselSection" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselSection" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock main%}

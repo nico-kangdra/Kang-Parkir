@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block ul %}
+<li><a href="/" class="btn btn-outline-dark">Home</a></li>
+<li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+<li><a href="/booking" class="btn btn-dark">Bookings</a></li>
+<li><a href="/profile" class="btn btn-outline-dark">Profile</a></li>
+{% endblock ul %}
+{% block sub %}
+<a href="/" class="btn btn-outline-dark">Home</a>
+<a href="/courts" class="btn btn-outline-dark">Courts</a>
+<a href="/booking" class="btn btn-dark">Bookings</a>
+<a href="/profile" class="btn btn-outline-dark">Profile</a>
+{% endblock sub %}
+{% block main %}
+<section class="booking">
+    <h2>Book a Court</h2>
+    <form action="#" method="post">
+        <label for="court-type">Select Court Type:</label>
+        <select id="court-type" name="court-type">
+            <option value="tennis">Tennis</option>
+            <option value="basketball">Basketball</option>
+            <option value="volleyball">Volleyball</option>
+            <!-- Add more options for different court types -->
+        </select>
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date">
+        <label for="time">Select Time:</label>
+        <input type="time" id="time" name="time">
+        <input type="submit" value="Book Now">
+    </form>
+</section>
+{% endblock main%}

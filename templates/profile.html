@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block ul %}
+<li><a href="/" class="btn btn-outline-dark">Home</a></li>
+<li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+<li><a href="/booking" class="btn btn-outline-dark">Bookings</a></li>
+<li><a href="/profile" class="btn btn-dark">Profile</a></li>
+{% endblock ul %}
+{% block sub %}
+<a href="/" class="btn btn-outline-dark">Home</a>
+<a href="/courts" class="btn btn-outline-dark">Courts</a>
+<a href="/booking" class="btn btn-outline-dark">Bookings</a>
+<a href="/profile" class="btn btn-dark">Profile</a>
+{% endblock sub %}
+{% block main %}
+<div class="container-fluid">
+    <h1>User Profile</h1>
+    <div class="profile-details">
+        <div id="view-mode">
+            <!-- Profile info displayed when not in edit mode -->
+            <h3>Name: John Doe</h3>
+            <p>Age: 30</p>
+            <p>Interests: Interest 1, Interest 2</p>
+            <button id="edit-mode-btn" class="btn btn-primary">Edit</button>
+        </div>
+        <div id="edit-mode" style="display: none;">
+            <!-- Form for editing profile info displayed when in edit mode -->
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" value="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="text" class="form-control" id="age" name="age" value="30">
+                </div>
+                <div class="form-group">
+                    <label for="interests">Interests:</label>
+                    <textarea class="form-control" id="interests" name="interests" rows="3">Interest 1, Interest 2</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" id="cancel-edit-btn" class="btn btn-dark">Cancel</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#edit-mode-btn').click(function() {
+            $('#view-mode').hide();
+            $('#edit-mode').show();
+        });
+
+        $('#cancel-edit-btn').click(function() {
+            $('#edit-mode').hide();
+            $('#view-mode').show();
+        });
+    });
+</script>
+{% endblock main%}

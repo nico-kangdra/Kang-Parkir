@@ -33,28 +33,36 @@
                     <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
                 </div>
                 <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" class="form-control" id="age" name="age" placeholder="Enter your age">
+                    <label for="age">Born Year</label>
+                    <input type="number" class="form-control" id="age" name="age" placeholder="Enter your born year"
+                        min="1900">
                 </div>
                 <div class="form-group">
                     <label for="interest">Interest</label>
                     <select class="form-control" id="interest" name="interest">
-                        <option value="sports">Sports</option>
-                        <option value="music">Music</option>
-                        <option value="movies">Movies</option>
+                        <option value="badminton">Badminton</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="futsal">Futsal</option>
+                        <option value="tennis">Tennis</option>
                         <!-- Add more options as needed -->
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Enter your password">
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                        placeholder="Confirm your password">
                 </div>
                 <button type="submit" class="btn btn-primary">Register</button>
             </form>
+            <br>
+            {% for message in get_flashed_messages() %}
+            <h3 style="color: red">{{ message }}</h3>
+            {% endfor %}
         </div>
     </div>
 </div>

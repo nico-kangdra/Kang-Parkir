@@ -33,15 +33,14 @@
 <main>
   <div id="carouselSection" class="carousel slide" data-ride="carousel">
     <ol class="carousel-indicators">
-      <li data-target="#carouselSection" data-slide-to="0" class="active"></li>
-      <li data-target="#carouselSection" data-slide-to="1"></li>
-      <li data-target="#carouselSection" data-slide-to="2"></li>
-      <li data-target="#carouselSection" data-slide-to="3"></li>
+      {% for img in images %}
+      <li data-target="#carouselSection" class="{% if loop.first %} active {% endif %}"></li>
+      {% endfor %}
     </ol>
     <div class="carousel-inner">
       {% for img in images %}
       <div class="carousel-item {% if loop.first %} active {% endif %}">
-        <img src="{{url_for('static', filename='carousel/'+img)}}" class="d-block w-100" alt="Slide 1">
+        <img src="{{url_for('static', filename='carousel/'+img)}}" class="d-block w-100">
       </div>
       {% endfor %}
     </div>

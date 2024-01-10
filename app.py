@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = "LETSGOSPORT"
@@ -9,6 +10,10 @@ limiter = Limiter(
     get_remote_address, app=app, default_limits=["3/second"]
 )
 
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(weeks=2)
 
 @app.get("/")
 def main():
@@ -29,6 +34,14 @@ def booking():
 @app.get("/profile")
 def profile():
     return render_template("profile.html")
+
+@app.get("/login")
+def login():
+    return render_template("login.html")
+
+@app.get("/register")
+def register():
+    return render_template("register.html")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

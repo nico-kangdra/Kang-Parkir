@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block ul %}
+<li><a href="/" class="btn btn-outline-dark">Home</a></li>
+<li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+{% if session.get("token") %}
+<li><a href="/booking" class="btn btn-outline-dark">Bookings</a></li>
+<li><a href="/profile" class="btn btn-dark">Profile</a></li>
+{% else %}
+<li><a href="/login" class="btn btn-dark">Login</a></li>
+{% endif %}
+{% endblock ul %}
+{% block sub %}
+<a href="/" class="btn btn-outline-dark">Home</a>
+<a href="/courts" class="btn btn-outline-dark">Courts</a>
+<a href="/booking" class="btn btn-outline-dark">Bookings</a>
+{% if session.get("token") %}
+<a href="/profile" class="btn btn-dark">Profile</a>
+{% else %}
+<a href="/login" class="btn btn-dark">Login</a>
+{% endif %}
+{% endblock sub %}
+{% block main %}
+<div class="container-fluid">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <form method="post" action="/register">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input required type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input required type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="born">Born Year</label>
+                    <input minlength="4" maxlength="4" type="number" class="form-control" id="born" name="born" placeholder="Enter your born year"
+                        min="{{year-100}}" max="{{year}}">
+                </div>
+                <div class="form-group">
+                    <label for="interest">Interest</label>
+                    <select class="form-control" id="interest" name="interest">
+                        <option value="badminton">Badminton</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="futsal">Futsal</option>
+                        <option value="tennis">Tennis</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input required minlength="6" type="password" class="form-control" id="password" name="password"
+                        placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input required minlength="6" type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                        placeholder="Confirm your password">
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+            <br>
+            {% for message in get_flashed_messages() %}
+            <h3 style="color: red">{{ message }}</h3>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

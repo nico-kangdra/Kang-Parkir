@@ -2,14 +2,22 @@
 {% block ul %}
 <li><a href="/" class="btn btn-outline-dark">Home</a></li>
 <li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+{% if session.get("token") %}
 <li><a href="/booking" class="btn btn-outline-dark">Bookings</a></li>
 <li><a href="/profile" class="btn btn-dark">Profile</a></li>
+{% else %}
+<li><a href="/login" class="btn btn-dark">Login</a></li>
+{% endif %}
 {% endblock ul %}
 {% block sub %}
 <a href="/" class="btn btn-outline-dark">Home</a>
 <a href="/courts" class="btn btn-outline-dark">Courts</a>
 <a href="/booking" class="btn btn-outline-dark">Bookings</a>
+{% if session.get("token") %}
 <a href="/profile" class="btn btn-dark">Profile</a>
+{% else %}
+<a href="/login" class="btn btn-dark">Login</a>
+{% endif %}
 {% endblock sub %}
 {% block main %}
 <div class="container-fluid">
@@ -17,25 +25,34 @@
     <div class="profile-details">
         <div id="view-mode">
             <!-- Profile info displayed when not in edit mode -->
-            <h3>Name: John Doe</h3>
-            <p>Age: 30</p>
-            <p>Interests: Interest 1, Interest 2</p>
+            <br>
+            <h3>Email: {{data["email"]}}</h3>
+            <p>Name: {{data["data"]["name"]}}</p>
+            <p>Age: {{age}}</p>
+            <p>Interests: {{data["data"]["interest"]}}</p>
             <button id="edit-mode-btn" class="btn btn-primary">Edit</button>
+            <a class="btn btn-danger" href="/logout">Logout</a>
         </div>
         <div id="edit-mode" style="display: none;">
             <!-- Form for editing profile info displayed when in edit mode -->
-            <form id="edit-form">
+            <form id="edit-form" method="post" action="/profile">
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="name" name="name" value="John Doe">
+                    <input type="text" class="form-control" id="name" name="name" value='{{data["data"]["name"]}}'>
                 </div>
                 <div class="form-group">
-                    <label for="age">Age:</label>
-                    <input type="text" class="form-control" id="age" name="age" value="30">
+                    <label for="born">Born Year:</label>
+                    <input minlength="4" maxlength="4" type="number" class="form-control" id="born" name="born"
+                        min="{{year-100}}" max="{{year}}" value='{{data["data"]["born"]}}'>
                 </div>
                 <div class="form-group">
                     <label for="interests">Interests:</label>
-                    <textarea class="form-control" id="interests" name="interests" rows="3">Interest 1, Interest 2</textarea>
+                    <select class="form-control" id="interest" name="interest">
+                        <option value="badminton">Badminton</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="futsal">Futsal</option>
+                        <option value="tennis">Tennis</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <button type="button" id="cancel-edit-btn" class="btn btn-dark">Cancel</button>
@@ -45,16 +62,26 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#edit-mode-btn').click(function() {
-            $('#view-mode').hide();
-            $('#edit-mode').show();
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('edit-mode-btn').addEventListener('click', function () {
+            document.getElementById('view-mode').style.display = 'none';
+            document.getElementById('edit-mode').style.display = 'block';
         });
 
-        $('#cancel-edit-btn').click(function() {
-            $('#edit-mode').hide();
-            $('#view-mode').show();
+        document.getElementById('cancel-edit-btn').addEventListener('click', function () {
+            document.getElementById('edit-mode').style.display = 'none';
+            document.getElementById('view-mode').style.display = 'block';
         });
     });
+
+    var interest = '{{data["data"]["interest"]}}';
+
+    var selectElement = document.getElementById('interest');
+    for (i = 0; i < selectElement.options.length; i++) {
+        if (selectElement.options[i].value === interest) {
+            selectElement.options[i].selected = true;
+            break;
+        }
+    }
 </script>
 {% endblock main%}

@@ -2,14 +2,22 @@
 {% block ul %}
 <li><a href="/" class="btn btn-outline-dark">Home</a></li>
 <li><a href="/courts" class="btn btn-outline-dark">Courts</a></li>
+{% if session.get("token") %}
 <li><a href="/booking" class="btn btn-dark">Bookings</a></li>
 <li><a href="/profile" class="btn btn-outline-dark">Profile</a></li>
+{% else %}
+<li><a href="/login" class="btn btn-outline-dark">Login</a></li>
+{% endif %}
 {% endblock ul %}
 {% block sub %}
 <a href="/" class="btn btn-outline-dark">Home</a>
 <a href="/courts" class="btn btn-outline-dark">Courts</a>
 <a href="/booking" class="btn btn-dark">Bookings</a>
+{% if session.get("token") %}
 <a href="/profile" class="btn btn-outline-dark">Profile</a>
+{% else %}
+<a href="/login" class="btn btn-outline-dark">Login</a>
+{% endif %}
 {% endblock sub %}
 {% block main %}
 <section class="booking">

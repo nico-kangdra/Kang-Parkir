@@ -14,9 +14,9 @@
 <a href="/courts" class="btn btn-outline-dark">Courts</a>
 <a href="/booking" class="btn btn-outline-dark">Bookings</a>
 {% if session.get("token") %}
-<li><a href="/profile" class="btn btn-outline-dark">Profile</a></li>
+<a href="/profile" class="btn btn-outline-dark">Profile</a>
 {% else %}
-<li><a href="/login" class="btn btn-outline-dark">Login</a></li>
+<a href="/login" class="btn btn-outline-dark">Login</a>
 {% endif %}
 {% endblock sub %}
 {% block main %}

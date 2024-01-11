@@ -25,7 +25,7 @@ def register(email: str, password: str):
 
 
 def login(email: str, password: str):
-    user = auth.sign_in_with_email_and_password(email, password)
+    user = auth.sign_in_with_email_and_password(email,password)
     user = auth.refresh(user["refreshToken"])
     return (auth.get_account_info(user["idToken"])["users"][0]["emailVerified"], user["idToken"])
 

@@ -8,6 +8,7 @@ __pycache__/
 
 # Config Files
 config.json
+account.json
 
 # Distribution / packaging
 .Python

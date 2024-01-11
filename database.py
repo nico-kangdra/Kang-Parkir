@@ -23,21 +23,22 @@ def register(email: str, password: str):
     except:
         return "There's an error occured"
 
-
 def login(email: str, password: str):
-    user = auth.sign_in_with_email_and_password(email,password)
-    user = auth.refresh(user["refreshToken"])
-    return (auth.get_account_info(user["idToken"])["users"][0]["emailVerified"], user["idToken"])
+    try:
+        user = auth.sign_in_with_email_and_password(email,password)
+        user = auth.refresh(user["refreshToken"])
+        return (auth.get_account_info(user["idToken"])["users"][0]["emailVerified"], user["idToken"])
+    except:
+        return "Email or Password not found"
 
-
-def set_user(email: str, password: str, name: str, age: int, interest: str):
+def set_user(email: str, password: str, name: str, born: int, interest: str):
     data = {
         encode(email): {
             "email": email,
             "password": encode(password),
             "data": {
                 "name": name,
-                "age": age,
+                "born": born,
                 "interest": interest,
             },
         }

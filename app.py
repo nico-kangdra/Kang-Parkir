@@ -5,6 +5,7 @@ from flask_limiter.util import get_remote_address
 from datetime import timedelta
 from datetime import date
 from database import login, register, set_user, get_user, update_user
+import json
 
 app = Flask(__name__)
 app.secret_key = "LETSGOSPORT"
@@ -22,6 +23,11 @@ def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
     return render_template("index.html", images=images)
 
+@app.get("/admin")
+def admin():
+    if session.get("roles"):
+        return render_template("admin/admin.html")
+    return redirect("/")
 
 @app.get("/courts")
 def courts_get():
@@ -37,15 +43,17 @@ def booking_get():
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    return render_template("profile.html", data=data)
+    year = date.today().year
+    age = year - int(data["data"]["born"])
+    return render_template("profile.html", data=data, year=year, age=age)
 
 
 @app.post("/profile")
 def profile_post():
     name = request.form["name"]
-    age = request.form["age"]
+    born = request.form["born"]
     interest = request.form["interest"]
-    data = {"name": name, "age": age, "interest": interest}
+    data = {"name": name, "born": born, "interest": interest}
     update_user(session["email"], data)
     return redirect("/profile")
 
@@ -60,25 +68,40 @@ def login_post():
     email = request.form["email"]
     password = request.form["password"]
     log_in = login(email, password)
-    if log_in[0]:
+    if len(log_in) == 2 and log_in[0]:
         session["token"] = log_in[1]
         session["email"] = email
         return redirect("/")
     else:
-        session.clear()
+        flash(log_in)
         return redirect("/login")
 
+@app.get("/login/admin")
+def login_admin_get():
+    return render_template("admin/login.html") 
+
+@app.post("/login/admin")
+def login_admin_post():
+    email = request.form["email"]
+    password = request.form["password"]
+    log_in = login(email, password)
+    f = open("account.json")
+    acc = json.load(f)
+    if acc["email"] == email and acc["password"] == password:
+        session["roles"] = "superuser"
+        return redirect("/admin")
 
 @app.get("/register")
 def register_get():
-    return render_template("register.html")
+    year = date.today().year
+    return render_template("register.html", year=year)
 
 
 @app.post("/register")
 def register_post():
     email = request.form["email"]
     name = request.form["name"]
-    age = date.today().year - int(request.form["age"])
+    born = request.form["born"]
     interest = request.form["interest"]
     password = request.form["password"]
 
@@ -87,7 +110,7 @@ def register_post():
         return redirect("/register")
     else:
         message = register(email, password)
-        set_user(email, password, name, age, interest)
+        set_user(email, password, name, born, interest)
         flash(message)
         return redirect("/login")
 

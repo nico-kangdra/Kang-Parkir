@@ -23,11 +23,13 @@ def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
     return render_template("index.html", images=images)
 
+
 @app.get("/admin")
 def admin():
     if session.get("roles"):
         return render_template("admin/admin.html")
     return redirect("/")
+
 
 @app.get("/courts")
 def courts_get():
@@ -68,17 +70,21 @@ def login_post():
     email = request.form["email"]
     password = request.form["password"]
     log_in = login(email, password)
-    if len(log_in) == 2 and log_in[0]:
+    if type(log_in) == str:
+        flash(log_in)
+    elif not log_in[0]:
+        flash("Please Verify Your Account by click the link from Email")
+    else:
         session["token"] = log_in[1]
         session["email"] = email
         return redirect("/")
-    else:
-        flash(log_in)
-        return redirect("/login")
+    return redirect("/login")
+
 
 @app.get("/login/admin")
 def login_admin_get():
-    return render_template("admin/login.html") 
+    return render_template("admin/login.html")
+
 
 @app.post("/login/admin")
 def login_admin_post():
@@ -90,6 +96,7 @@ def login_admin_post():
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin")
+
 
 @app.get("/register")
 def register_get():
@@ -114,10 +121,12 @@ def register_post():
         flash(message)
         return redirect("/login")
 
+
 @app.get("/logout")
 def logout():
     session.clear()
     return redirect("/")
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

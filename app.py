@@ -24,12 +24,17 @@ def home_get():
     return render_template("index.html", images=images)
 
 
-@app.get("/admin")
-def admin():
+@app.get("/admin/court")
+def admin_court():
     if session.get("roles"):
-        return render_template("admin/admin.html")
+        return render_template("admin/courts.html")
     return redirect("/")
 
+@app.get("/admin/user")
+def admin_user():
+    if session.get("roles"):
+        return render_template("admin/user.html")
+    return redirect("/")
 
 @app.get("/courts")
 def courts_get():
@@ -90,12 +95,13 @@ def login_admin_get():
 def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
-    log_in = login(email, password)
+    # log_in = login(email, password)
     f = open("account.json")
     acc = json.load(f)
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
-        return redirect("/admin")
+        return redirect("/admin/court")
+    return redirect("/logout")
 
 
 @app.get("/register")

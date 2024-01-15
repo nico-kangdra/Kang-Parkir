@@ -26,25 +26,26 @@
   <div id="view-mode">
     <h1><button id="add-mode-btn" class="btn btn-primary">New Courts</button> List Courts</h1><br>
     <div class="row">
-
+      {% for court in courts %}
       <div class="col-md-4 mb-4">
         <div class="card">
-          <img src="{{url_for('static', filename='courts/jorta.jpg')}}" class="card-img-top" alt="">
+          <img src="{{url_for('static', filename='courts/'+court['image'])}}" class="card-img-top" alt="">
           <div class="card-body">
-            <h5 class="card-title">i</h5>
-            <p class="card-text">Location: you</p>
+            <h5 class="card-title">{{court["name"]}}</h5>
+            <p class="card-text">Location: </p>
             <p class="card-text">Type: me</p>
             <a href="#" class="btn btn-primary">Book Now</a>
           </div>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
   <div id="add-mode" style="display: none;">
     <h1>Add Courts</h1><br>
-    <form id="add-form" method="post" action="/admin/court">
+    <form id="add-form" method="post" action="/admin/court" enctype="multipart/form-data">
       <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">Court Name:</label>
         <input type="text" class="form-control" id="name" name="name" value=''>
       </div>
       <div class="form-group">
@@ -52,11 +53,15 @@
         <input type="text" class="form-control" id="phone" name="phone" value=''>
       </div>
       <div class="form-group">
-        <label for="link">Location Link:</label>
-        <input type="text" class="form-control" id="link" name="link" value=''>
+        <label for="location">Location :</label>
+        <input type="text" class="form-control" id="location" name="location" value=''>
       </div>
       <div class="form-group">
-        <label for="type">Courts Type:</label>
+        <label for="embed">Location Embed:</label>
+        <input type="text" class="form-control" id="embed" name="embed" value=''>
+      </div>
+      <div class="form-group">
+        <label for="type">Court Type:</label>
         <select class="form-control" id="type" name="type">
           <option value="badminton">Badminton</option>
           <option value="basketball">Basketball</option>
@@ -69,7 +74,7 @@
         <input type="file" class="form-control" id="image" name="image" accept="image/*">
       </div>
       <button type="submit" class="btn btn-primary">Save Changes</button>
-      <button type="button" id="cancel-add-btn" class="btn btn-dark">Cancel</button>
+      <button type="button" id="cancel-add-btn" class="btn btn-secondary">Cancel</button>
     </form>
   </div>
 </div>

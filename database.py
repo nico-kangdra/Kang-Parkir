@@ -54,21 +54,27 @@ def update_user(email: str, data: dict):
     db.child("users").child(encode(email)).child("data").update(data)
 
 
-def set_court(court: str, location: str, link: str, type: str, image_filename: str):
+def set_court(court: str, location: str, type: str, phone:str, embed:str, image_filename: str):
     data = {
         encode(court): {
             "name": court,
             "location": location,
-            "link": link,
             "type": type,
+            "phone": phone,
+            "embed": embed,
             "image": image_filename,
         }
     }
     db.child("courts").update(data)
 
 
-def get_court(court: str):
-    return db.child("courts").child(encode(court)).get().val()
+def get_court():
+    courts = db.child("courts").get().val()
+    res = []
+    if courts:
+        for x in courts.values():
+            res.append(x)
+    return res
 
 
 def update_court(court: str, data: dict):
@@ -78,6 +84,7 @@ def update_court(court: str, data: dict):
 def set_timeslot(court: str, data:dict):
     db.child("courts").child(encode(court)).child("timeslot").update(data)
 
+# print(get_court()[0]["image"])
 # set_court("Kharisma","Kalideres","null","Badminton","None")
 # set_timeslot("Kharisma")
 # print(get_court("Kharisma"))

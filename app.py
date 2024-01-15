@@ -4,7 +4,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
 from datetime import date
-from database import login, register, set_user, get_user, update_user
+from database import login, register, set_user, get_user, update_user, set_court, get_court
 import json
 
 app = Flask(__name__)
@@ -27,8 +27,21 @@ def home_get():
 @app.get("/admin/court")
 def admin_court():
     if session.get("roles"):
-        return render_template("admin/courts.html")
+        courts = get_court()
+        return render_template("admin/courts.html", courts=courts)
     return redirect("/")
+
+@app.post("/admin/court")
+def admin_court_post():
+    name = request.form["name"]
+    phone = request.form["phone"]
+    location = request.form["location"]
+    types = request.form["type"]
+    image = request.files["image"]
+    if image:
+        image.save(app.static_folder + "/courts/" + image.filename)
+    set_court(name, location, types, phone, image.filename)
+    return redirect("/admin/court")
 
 @app.get("/admin/user")
 def admin_user():

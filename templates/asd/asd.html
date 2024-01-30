@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <h1>My First Google Map</h1>
+
+    <div id="googleMap" style="width:95vw;height:75vh;margin: auto;"></div>
+
+    <script>
+        function myMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var lat = position.coords.latitude;
+                    var long = position.coords.longitude;
+
+                    var mapProp = {
+                        center: new google.maps.LatLng(lat, long),
+                        zoom: 17,
+                    };
+
+                    function listener(mark, window) {
+                        mark.addListener('click', function () {
+                            window.open(map, mark);
+                        });
+                    }
+
+                    function mark(lt, lg, cs) {
+                        return new google.maps.Marker({
+                            position: new google.maps.LatLng(lt, lg),
+                            map: map,
+                            icon: cs
+                        });
+                    }
+
+                    function window(cnt) {
+                        return new google.maps.InfoWindow({
+                            content: cnt
+                        });
+                    }
+
+                    var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+
+                    var customMarker = {
+                        url: "{{url_for('static', filename='PPP.png')}}",
+                        scaledSize: new google.maps.Size(80, 53.7)
+                    };
+
+                    // Create a marker for the current location
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(lat, long),
+                        map: map
+                    });
+
+                    var marker1 = mark(-6.191447928332966, 106.7931690133031, customMarker)
+
+                    var marker2 = mark(-6.192700017192042, 106.79682252643408, customMarker)
+
+                    // Create an info window with the label
+                    var infoWindow = window('<div><h3>My Current Location</h3><p>Additional information goes here.</p></div>')
+
+                    var p1 = window('<div><h3>P1 Location</h3><p>Additional information goes here.</p></div>')
+
+                    var p2 = window('<div><h3>P2 Location</h3><p>Additional information goes here.</p></div>')
+
+                    listener(marker, infoWindow);
+                    listener(marker1, p1);
+                    listener(marker2, p2);
+
+                    // Add a blue circle around the current location
+                    var circle = new google.maps.Circle({
+                        map: map,
+                        radius: 20, // in meters
+                        fillColor: '#4285F4', // blue color
+                        fillOpacity: 0.4,
+                        strokeColor: '#4285F4',
+                        strokeOpacity: 1.0,
+                    });
+
+                    circle.bindTo('center', marker, 'position');
+                });
+            } else {
+                // Handle geolocation not supported
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Function to add markers after Google Maps API is loaded
+        function addMarkers() {
+            myMap(); // Call myMap function to initialize map and add markers
+        }
+    </script>
+
+    <script async src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=addMarkers"></script>
+
+</body>
+
+</html>

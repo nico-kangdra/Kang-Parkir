@@ -18,6 +18,13 @@ def before_request():
     app.permanent_session_lifetime = timedelta(weeks=2)
 
 
+@app.get("/asd")
+def asd():
+    f = open("account.json")
+    api_key = json.load(f)["api_key"]
+    return render_template("asd/asd.html", api_key=api_key)
+
+
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))

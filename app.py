@@ -20,8 +20,8 @@ def before_request():
 
 @app.get("/asd")
 def asd():
-    f = open("account.json")
-    api_key = json.load(f)["api_key"]
+    f = open("config.json")
+    api_key = json.load(f)[1]["api_key"]
     return render_template("asd/asd.html", api_key=api_key)
 
 
@@ -116,8 +116,8 @@ def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
     # log_in = login(email, password)
-    f = open("account.json")
-    acc = json.load(f)
+    f = open("config.json")
+    acc = json.load(f)[1]
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin/court")

@@ -3,7 +3,7 @@ from hashlib import sha256
 import json
 
 f = open("config.json")
-config = json.load(f)
+config = json.load(f)[0]
 
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()

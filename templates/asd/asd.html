@@ -5,7 +5,7 @@
 
     <h1>My First Google Map</h1>
 
-    <div id="googleMap" style="width:95vw;height:75vh;margin: auto;"></div>
+    <div id="googleMap" style="width:95vw;height:600px;margin: auto;"></div>
 
     <script>
         function myMap() {
@@ -85,13 +85,9 @@
             }
         }
 
-        // Function to add markers after Google Maps API is loaded
-        function addMarkers() {
-            myMap(); // Call myMap function to initialize map and add markers
-        }
     </script>
 
-    <script async src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=addMarkers"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=myMap"></script>
 
 </body>
 

@@ -8,7 +8,7 @@ from database import login, register, set_user, get_user, update_user, set_court
 import json
 
 app = Flask(__name__)
-app.secret_key = "LETSGOSPORT"
+app.secret_key = json.load(open("config.json"))[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["3/second"])
 
 

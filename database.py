@@ -54,35 +54,28 @@ def update_user(email: str, data: dict):
     db.child("users").child(encode(email)).child("data").update(data)
 
 
-def set_court(court: str, location: str, type: str, phone:str, embed:str, image_filename: str):
+def set_space(space_name: str, type: str, phone:str, image_filename: str, lat, long):
     data = {
-        encode(court): {
-            "name": court,
-            "location": location,
+        space_name: {
+            "name": space_name,
             "type": type,
             "phone": phone,
-            "embed": embed,
             "image": image_filename,
+            "long": long,
+            "lat": lat
         }
     }
-    db.child("courts").update(data)
+    db.child("spaces").update(data) 
 
 
-def get_court():
-    courts = db.child("courts").get().val()
-    res = []
-    if courts:
-        for x in courts.values():
-            res.append(x)
-    return res
+def get_space():
+    spaces = db.child("spaces").get().val()
+    return spaces
+set_space("ParkirW","Car","085155331900","no",-6.191447968332966,106.7931620133031)
+# print(get_space()["ParkirV"]["long"])
+def update_space(space: str, data: dict):
+    db.child("spaces").child(encode(space)).update(data)
 
-
-def update_court(court: str, data: dict):
-    db.child("courts").child(encode(court)).update(data)
-
-
-def set_timeslot(court: str, data:dict):
-    db.child("courts").child(encode(court)).child("timeslot").update(data)
 
 # print(get_court()[0]["image"])
 # set_court("Kharisma","Kalideres","null","Badminton","None")

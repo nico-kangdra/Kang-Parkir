@@ -4,7 +4,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
 from datetime import date
-from database import login, register, set_user, get_user, update_user, set_court, get_court
+from database import login, register, set_user, get_user, update_user, set_space, get_space
 import json
 
 app = Flask(__name__)
@@ -22,33 +22,34 @@ def before_request():
 def asd():
     f = open("config.json")
     api_key = json.load(f)[1]["api_key"]
-    return render_template("asd/asd.html", api_key=api_key)
+    spaces = get_space()
+    return render_template("asd/asd.html", api_key=api_key, spaces=spaces)
 
 
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
-    return render_template("index.html", images=images)
+    return render_template("index.html", images=images, nav="home")
 
 
-@app.get("/admin/court")
-def admin_court():
-    if session.get("roles"):
-        courts = get_court()
-        return render_template("admin/courts.html", courts=courts)
-    return redirect("/")
+# @app.get("/admin/court")
+# def admin_court():
+#     if session.get("roles"):
+#         courts = get_court()
+#         return render_template("admin/courts.html", courts=courts)
+#     return redirect("/")
 
-@app.post("/admin/court")
-def admin_court_post():
-    name = request.form["name"]
-    phone = request.form["phone"]
-    location = request.form["location"]
-    types = request.form["type"]
-    image = request.files["image"]
-    if image:
-        image.save(app.static_folder + "/courts/" + image.filename)
-    set_court(name, location, types, phone, image.filename)
-    return redirect("/admin/court")
+# @app.post("/admin/court")
+# def admin_court_post():
+#     name = request.form["name"]
+#     phone = request.form["phone"]
+#     location = request.form["location"]
+#     types = request.form["type"]
+#     image = request.files["image"]
+#     if image:
+#         image.save(app.static_folder + "/courts/" + image.filename)
+#     set_court(name, location, types, phone, image.filename)
+#     return redirect("/admin/court")
 
 @app.get("/admin/user")
 def admin_user():
@@ -58,8 +59,8 @@ def admin_user():
 
 @app.get("/courts")
 def courts_get():
-    images = sorted(os.listdir(app.static_folder + "/courts"))
-    return render_template("courts.html", images=images)
+    # images = sorted(os.listdir(app.static_folder + "/courts"))
+    return render_template("courts.html")
 
 
 @app.get("/booking")
@@ -87,7 +88,7 @@ def profile_post():
 
 @app.get("/login")
 def login_get():
-    return render_template("login.html")
+    return render_template("login.html", nav="login")
 
 
 @app.post("/login")
@@ -127,7 +128,7 @@ def login_admin_post():
 @app.get("/register")
 def register_get():
     year = date.today().year
-    return render_template("register.html", year=year)
+    return render_template("register.html", year=year, nav="login")
 
 
 @app.post("/register")

@@ -38,7 +38,7 @@
       }
 
       header a img {
-        max-width: 175px;
+        max-width: 165px;
         margin-right: 20px;
       }
 
@@ -100,28 +100,76 @@
       <nav>
         <div class="nav-buttons">
           <ul>
-            <li><a href="/" class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}">Home</a></li>
-            <li><a href="/spaces" class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}">Spaces</a></li>
+            <li>
+              <a
+                href="/"
+                class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="/spaces"
+                class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Spaces</a
+              >
+            </li>
             {% if session.get("token") %}
             <li>
-              <a href="/booking" class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}">Bookings</a>
+              <a
+                href="/booking"
+                class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Bookings</a
+              >
             </li>
-            <li><a href="/profile" class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}">Profile</a></li>
+            <li>
+              <a
+                href="/profile"
+                class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Profile</a
+              >
+            </li>
             {% else %}
-            <li><a href="/login" class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}">Login</a></li>
+            <li>
+              <a
+                href="/login"
+                class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+                >Login</a
+              >
+            </li>
             {% endif %}
           </ul>
         </div>
       </nav>
     </header>
     <div id="subHeader">
-      <a href="/" class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}">Home</a>
-      <a href="/spaces" class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}">Spaces</a>
+      <a
+        href="/"
+        class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Home</a
+      >
+      <a
+        href="/spaces"
+        class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Spaces</a
+      >
       {% if session.get("token") %}
-      <a href="/booking" class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}">Bookings</a>
-      <a href="/profile" class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}">Profile</a>
+      <a
+        href="/booking"
+        class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Bookings</a
+      >
+      <a
+        href="/profile"
+        class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Profile</a
+      >
       {% else %}
-      <a href="/login" class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}">Login</a>
+      <a
+        href="/login"
+        class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
+        >Login</a
+      >
       {% endif %}
     </div>
     <main>{% block main %} {% endblock main %}</main>

@@ -9,7 +9,7 @@ import json
 
 app = Flask(__name__)
 app.secret_key = json.load(open("config.json"))[2]["secret"]
-limiter = Limiter(get_remote_address, app=app, default_limits=["3/second"])
+limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 
 
 @app.before_request
@@ -29,7 +29,10 @@ def asd():
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
-    return render_template("index.html", images=images, nav="home")
+    f = open("config.json")
+    api_key = json.load(f)[1]["api_key"]
+    spaces  = get_space()
+    return render_template("index.html", api_key=api_key, spaces=spaces, images=images, nav="home")
 
 
 @app.get("/admin/court")
@@ -135,8 +138,6 @@ def register_get():
 def register_post():
     email = request.form["email"]
     name = request.form["name"]
-    born = request.form["born"]
-    interest = request.form["interest"]
     password = request.form["password"]
 
     if get_user(email):
@@ -144,7 +145,7 @@ def register_post():
         return redirect("/register")
     else:
         message = register(email, password)
-        set_user(email, password, name, born, interest)
+        set_user(email, password, name)
         flash(message)
         return redirect("/login")
 

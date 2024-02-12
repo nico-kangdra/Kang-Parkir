@@ -36,11 +36,7 @@ def set_user(email: str, password: str, name: str, born: int, interest: str):
         encode(email): {
             "email": email,
             "password": encode(password),
-            "data": {
-                "name": name,
-                "born": born,
-                "interest": interest,
-            },
+            "name": name,
         }
     }
     db.child("users").update(data)

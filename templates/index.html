@@ -1,43 +1,147 @@
-{% extends 'base.html' %}
-
-{% block main %}
+{% extends 'base.html' %} {% block main %}
 <style>
-  .carousel-item img {
-    max-height: 450px;
-    object-fit: contain;
+  #googleMap {
+    width: 100%; /* Set the map container width to 100% of the parent element */
+    height: 50vh; /* Set a fixed height or adjust as needed */
+    margin: auto;
   }
-
-  .carousel-inner a {
-    opacity: 1;
+  h2 {
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
 </style>
+<h2>Search Location</h2>
 <main>
-  <div id="carouselSection" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-      {% for img in images %}
-      <li data-target="#carouselSection" class="{% if loop.first %} active {% endif %}"></li>
-      {% endfor %}
-    </ol>
-    <div class="carousel-inner">
-      {% for img in images %}
-      <div class="carousel-item {% if loop.first %} active {% endif %}">
-        <img src="{{url_for('static', filename='carousel/'+img)}}" class="d-block w-100">
-      </div>
-      {% endfor %}
-    </div>
-    <a class="carousel-control-prev" href="#carouselSection" role="button" data-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselSection" role="button" data-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
-  </div>
+  <input
+    id="place-search"
+    type="text"
+    placeholder="Enter a location"
+    autocomplete="off"
+    class="form-control"
+  />
+  <div id="googleMap"></div>
+
+  <script>
+    let map;
+    let currentLocationMarker;
+    let selectedMarker;
+    const autocompleteOptions = {
+      types: ["geocode"],
+    };
+
+    function initMap() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          const mapOptions = {
+            center: { lat: latitude, lng: longitude },
+            zoom: 17,
+          };
+
+          map = new google.maps.Map(
+            document.getElementById("googleMap"),
+            mapOptions
+          );
+
+          currentLocationMarker = new google.maps.Marker({
+            position: { lat: latitude, lng: longitude },
+            map: map
+          });
+
+          // Get current location name and fill it to the input
+          getCurrentLocationName(latitude, longitude);
+
+          const input = document.getElementById("place-search");
+          const autocomplete = new google.maps.places.Autocomplete(
+            input,
+            autocompleteOptions
+          );
+          autocomplete.bindTo("bounds", map);
+
+          autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+              window.alert(
+                "No details available for input: '" + place.name + "'"
+              );
+              return;
+            }
+
+            if (selectedMarker) {
+              selectedMarker.setMap(null);
+            }
+            if (currentLocationMarker) {
+              currentLocationMarker.setMap(null);
+            }
+
+            map.setCenter(place.geometry.location);
+            selectedMarker = new google.maps.Marker({
+              position: place.geometry.location,
+              map: map
+            });
+          });
+
+          const customMarker = {
+        url: "{{url_for('static', filename='PPP.png')}}",
+        scaledSize: new google.maps.Size(80, 53.7),
+      };
+          var data = {{ spaces | tojson | safe }};
+          for (let x in data){
+            console.log(data[x])
+            createMarkers(data[x], customMarker);
+          }
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function getCurrentLocationName(latitude, longitude) {
+      const geocoder = new google.maps.Geocoder();
+      const latlng = { lat: latitude, lng: longitude };
+
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === "OK") {
+          if (results[0]) {
+            const currentLocationName = results[0].formatted_address;
+            document.getElementById("place-search").value =
+              currentLocationName;
+          } else {
+            console.error("No results found");
+          }
+        } else {
+          console.error("Geocoder failed due to: " + status);
+        }
+      });
+    }
+
+    function createMarkers(data, cm) {
+      const marker = new google.maps.Marker({
+        position: { lat: data['lat'], lng: data['long'] },
+        map: map,
+        icon: cm,
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content:
+          "<div><h4> "+data['name']+" Location</h4><p>Additional information goes here.</p></div>",
+      });
+
+      // Add click listeners to markers
+      listener(marker, infoWindow);
+    }
+
+    function listener(marker, infoWindow) {
+      marker.addListener("click", function () {
+        infoWindow.open(map, marker);
+      });
+    }
+  </script>
 </main>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script
+  async
+  defer
+  src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap&libraries=places"
+></script>
 {% endblock main%}

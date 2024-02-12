@@ -101,7 +101,7 @@
         <div class="nav-buttons">
           <ul>
             <li><a href="/" class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}">Home</a></li>
-            <li><a href="/courts" class="btn {% if nav == 'courts' %} btn-dark {% else %} btn-outline-dark {% endif %}">Courts</a></li>
+            <li><a href="/spaces" class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}">Spaces</a></li>
             {% if session.get("token") %}
             <li>
               <a href="/booking" class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}">Bookings</a>
@@ -116,7 +116,7 @@
     </header>
     <div id="subHeader">
       <a href="/" class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}">Home</a>
-      <a href="/courts" class="btn {% if nav == 'courts' %} btn-dark {% else %} btn-outline-dark {% endif %}">Courts</a>
+      <a href="/spaces" class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}">Spaces</a>
       {% if session.get("token") %}
       <a href="/booking" class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}">Bookings</a>
       <a href="/profile" class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}">Profile</a>
@@ -127,7 +127,7 @@
     <main>{% block main %} {% endblock main %}</main>
 
     <footer>
-      <p>&nbsp;&nbsp; &copy; 2024 | SPORT IT ON</p>
+      <p>&nbsp;&nbsp; &copy; 2024 | KANG PARKIR</p>
     </footer>
   </body>
 </html>

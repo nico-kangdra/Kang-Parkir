@@ -22,7 +22,7 @@ def before_request():
 def asd():
     f = open("config.json")
     api_key = json.load(f)[1]["api_key"]
-    spaces = get_space()
+    spaces  = get_space()
     return render_template("asd/asd.html", api_key=api_key, spaces=spaces)
 
 
@@ -32,24 +32,24 @@ def home_get():
     return render_template("index.html", images=images, nav="home")
 
 
-# @app.get("/admin/court")
-# def admin_court():
-#     if session.get("roles"):
-#         courts = get_court()
-#         return render_template("admin/courts.html", courts=courts)
-#     return redirect("/")
+@app.get("/admin/court")
+def admin_court():
+    if session.get("roles"):
+        # courts = get_court()
+        return render_template("admin/courts.html", courts="courts")
+    return redirect("/")
 
-# @app.post("/admin/court")
-# def admin_court_post():
-#     name = request.form["name"]
-#     phone = request.form["phone"]
-#     location = request.form["location"]
-#     types = request.form["type"]
-#     image = request.files["image"]
-#     if image:
-#         image.save(app.static_folder + "/courts/" + image.filename)
-#     set_court(name, location, types, phone, image.filename)
-#     return redirect("/admin/court")
+@app.post("/admin/court")
+def admin_court_post():
+    name = request.form["name"]
+    phone = request.form["phone"]
+    location = request.form["location"]
+    types = request.form["type"]
+    image = request.files["image"]
+    if image:
+        image.save(app.static_folder + "/courts/" + image.filename)
+    # set_court(name, location, types, phone, image.filename)
+    return redirect("/admin/court")
 
 @app.get("/admin/user")
 def admin_user():
@@ -57,10 +57,10 @@ def admin_user():
         return render_template("admin/user.html")
     return redirect("/")
 
-@app.get("/courts")
+@app.get("/spaces")
 def courts_get():
     # images = sorted(os.listdir(app.static_folder + "/courts"))
-    return render_template("courts.html")
+    return render_template("spaces.html", nav="spaces")
 
 
 @app.get("/booking")

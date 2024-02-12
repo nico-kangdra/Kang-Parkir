@@ -71,7 +71,7 @@ def set_space(space_name: str, type: str, phone:str, image_filename: str, lat, l
 def get_space():
     spaces = db.child("spaces").get().val()
     return spaces
-set_space("ParkirW","Car","085155331900","no",-6.191447968332966,106.7931620133031)
+# set_space("ParkirW","Car","085155331900","no",-6.903045666023884, 106.88468475647025)
 # print(get_space()["ParkirV"]["long"])
 def update_space(space: str, data: dict):
     db.child("spaces").child(encode(space)).update(data)

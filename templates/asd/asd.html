@@ -41,15 +41,9 @@
               mapOptions
             );
 
-            const currentMarker = {
-          url: "{{url_for('static', filename='loc.png')}}",
-          scaledSize: new google.maps.Size(65, 65),
-        };
-
             currentLocationMarker = new google.maps.Marker({
               position: { lat: latitude, lng: longitude },
-              map: map,
-              icon: currentMarker
+              map: map
             });
 
             // Get current location name and fill it to the input
@@ -81,8 +75,7 @@
               map.setCenter(place.geometry.location);
               selectedMarker = new google.maps.Marker({
                 position: place.geometry.location,
-                map: map,
-                icon: currentMarker
+                map: map
               });
             });
 

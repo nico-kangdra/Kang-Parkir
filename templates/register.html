@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block main %}
+<h2 style="text-align: center; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold;">Register</h2>
 <div class="container-fluid">
     <div class="row justify-content-center mt-5">
         <div class="col-md-6">
-            <form method="post" action="/register">
+            <form method="post" action="/register" onsubmit="return validateForm()">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input required type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
@@ -22,6 +23,7 @@
                     <label for="confirmPassword">Confirm Password</label>
                     <input required minlength="6" type="password" class="form-control" id="confirmPassword" name="confirmPassword"
                         placeholder="Confirm your password">
+                    <span id="passwordError" style="color: red;"></span>
                 </div>
                 <button type="submit" class="btn btn-primary">Register</button>
             </form>
@@ -32,4 +34,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    function validateForm() {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+        var passwordError = document.getElementById("passwordError");
+
+        if (password !== confirmPassword) {
+            passwordError.textContent = "Passwords do not match";
+            return false;
+        } else {
+            passwordError.textContent = "";
+            return true;
+        }
+    }
+</script>
+
 {% endblock %}

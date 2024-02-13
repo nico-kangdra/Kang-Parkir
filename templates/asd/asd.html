@@ -115,7 +115,7 @@
 
       function createMarkers(data, cm) {
         const marker = new google.maps.Marker({
-          position: { lat: data['lat'], lng: data['long'] },
+          position: { lat: Number(data['lat']), lng: Number(data['long']) },
           map: map,
           icon: cm,
         });

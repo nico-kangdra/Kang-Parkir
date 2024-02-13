@@ -100,6 +100,11 @@
       <nav>
         <div class="nav-buttons">
           <ul>
+            {% if nav == "admin" %}
+            <li>
+              {% block admin1 %}{% endblock admin1 %}
+            </li>
+            {% else %}
             <li>
               <a
                 href="/"
@@ -111,7 +116,7 @@
               <a
                 href="/spaces"
                 class="btn {% if nav == 'spaces' %} btn-dark {% else %} btn-outline-dark {% endif %}"
-                >Spaces</a
+                >Parkiran</a
               >
             </li>
             {% if session.get("token") %}
@@ -138,11 +143,15 @@
               >
             </li>
             {% endif %}
+            {% endif %}
           </ul>
         </div>
       </nav>
     </header>
     <div id="subHeader">
+      {% if nav == "admin" %}
+        {% block admin2 %}{% endblock admin2 %}
+      {% else %}
       <a
         href="/"
         class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
@@ -170,6 +179,7 @@
         class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
         >Login</a
       >
+      {% endif %}
       {% endif %}
     </div>
     <main>{% block main %} {% endblock main %}</main>

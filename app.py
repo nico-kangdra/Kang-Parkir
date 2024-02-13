@@ -4,7 +4,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
 from datetime import date
-from database import login, register, set_user, get_user, update_user, set_space, get_space
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot
 import json
 
 app = Flask(__name__)
@@ -35,35 +35,31 @@ def home_get():
     return render_template("index.html", api_key=api_key, spaces=spaces, images=images, nav="home")
 
 
-@app.get("/admin/court")
+@app.get("/admin/spaces")
 def admin_court():
     if session.get("roles"):
-        # courts = get_court()
-        return render_template("admin/courts.html", courts="courts")
+        spaces = get_space()
+        return render_template("admin/spaces.html", spaces=spaces, nav="admin")
     return redirect("/")
 
-@app.post("/admin/court")
+@app.post("/admin/spaces")
 def admin_court_post():
     name = request.form["name"]
     phone = request.form["phone"]
     location = request.form["location"]
     types = request.form["type"]
+    lat = request.form["latitude"]
+    long = request.form["longitude"]
     image = request.files["image"]
     if image:
-        image.save(app.static_folder + "/courts/" + image.filename)
-    # set_court(name, location, types, phone, image.filename)
-    return redirect("/admin/court")
-
-@app.get("/admin/user")
-def admin_user():
-    if session.get("roles"):
-        return render_template("admin/user.html")
-    return redirect("/")
+        image.save(app.static_folder + "/spaces/" + image.filename)
+    set_space(name, types, phone, image.filename, location, lat, long)
+    return redirect("/admin/spaces")
 
 @app.get("/spaces")
 def courts_get():
-    # images = sorted(os.listdir(app.static_folder + "/courts"))
-    return render_template("spaces.html", nav="spaces")
+    spaces = get_space()
+    return render_template("spaces.html", spaces=spaces ,nav="spaces")
 
 
 @app.get("/booking")
@@ -74,17 +70,13 @@ def booking_get():
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    year = date.today().year
-    age = year - int(data["data"]["born"])
-    return render_template("profile.html", data=data, year=year, age=age)
+    return render_template("profile.html", data=data)
 
 
 @app.post("/profile")
 def profile_post():
-    name = request.form["name"]
-    born = request.form["born"]
-    interest = request.form["interest"]
-    data = {"name": name, "born": born, "interest": interest}
+    name = request.form["nameInput"]
+    data = {'name': name}
     update_user(session["email"], data)
     return redirect("/profile")
 
@@ -93,6 +85,16 @@ def profile_post():
 def login_get():
     return render_template("login.html", nav="login")
 
+@app.get("/forgot")
+def forgot_get():
+    return render_template("forgot.html")
+
+@app.post("/forgot")
+def forgot_post():
+    email = request.form["email"]
+    res = forgot(email)
+    flash(res)
+    return redirect('/forgot')
 
 @app.post("/login")
 def login_post():
@@ -119,19 +121,17 @@ def login_admin_get():
 def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
-    # log_in = login(email, password)
     f = open("config.json")
     acc = json.load(f)[1]
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
-        return redirect("/admin/court")
+        return redirect("/admin/spaces")
     return redirect("/logout")
 
 
 @app.get("/register")
 def register_get():
-    year = date.today().year
-    return render_template("register.html", year=year, nav="login")
+    return render_template("register.html", nav="login")
 
 
 @app.post("/register")

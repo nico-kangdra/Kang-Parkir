@@ -8,9 +8,10 @@
   h2 {
     text-align: center;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
   }
 </style>
-<h2>Search Location</h2>
+<h2>Nyari Lokasi Parkir </h2>
 <main>
   <input
     id="place-search"
@@ -18,6 +19,7 @@
     placeholder="Enter a location"
     autocomplete="off"
     class="form-control"
+    onclick="this.select()"
   />
   <div id="googleMap"></div>
 
@@ -48,7 +50,6 @@
             map: map
           });
 
-          // Get current location name and fill it to the input
           getCurrentLocationName(latitude, longitude);
 
           const input = document.getElementById("place-search");
@@ -117,14 +118,14 @@
 
     function createMarkers(data, cm) {
       const marker = new google.maps.Marker({
-        position: { lat: data['lat'], lng: data['long'] },
+        position: { lat: Number(data['lat']), lng: Number(data['long']) },
         map: map,
         icon: cm,
       });
 
       const infoWindow = new google.maps.InfoWindow({
         content:
-          "<div><h4> "+data['name']+" Location</h4><p>Additional information goes here.</p></div>",
+          "<div><h5><a href='#'> "+data['name']+" </a></h5><a target='_blank' href="+data['link']+">"+data['link']+"</a></div>",
       });
 
       // Add click listeners to markers

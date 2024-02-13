@@ -1,68 +1,67 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div class="container-fluid">
-    <h1>User Profile</h1>
-    <div class="profile-details">
-        <div id="view-mode">
-            <!-- Profile info displayed when not in edit mode -->
-            <br>
-            <h3>Email: {{data["email"]}}</h3>
-            <p>Name: {{data["data"]["name"]}}</p>
-            <p>Age: {{age}}</p>
-            <p>Interests: {{data["data"]["interest"]}}</p>
-            <button id="edit-mode-btn" class="btn btn-primary">Edit</button>
-            <a class="btn btn-danger" href="/logout">Logout</a>
-        </div>
-        <div id="edit-mode" style="display: none;">
-            <!-- Form for editing profile info displayed when in edit mode -->
-            <form id="edit-form" method="post" action="/profile">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="name" name="name" value='{{data["data"]["name"]}}'>
-                </div>
-                <div class="form-group">
-                    <label for="born">Born Year:</label>
-                    <input minlength="4" maxlength="4" type="number" class="form-control" id="born" name="born"
-                        min="{{year-100}}" max="{{year}}" value='{{data["data"]["born"]}}'>
-                </div>
-                <div class="form-group">
-                    <label for="interests">Interests:</label>
-                    <select class="form-control" id="interest" name="interest">
-                        <option value="badminton">Badminton</option>
-                        <option value="basketball">Basketball</option>
-                        <option value="futsal">Futsal</option>
-                        <option value="tennis">Tennis</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" id="cancel-edit-btn" class="btn btn-dark">Cancel</button>
-            </form>
-        </div>
-    </div>
-</div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('edit-mode-btn').addEventListener('click', function () {
-            document.getElementById('view-mode').style.display = 'none';
-            document.getElementById('edit-mode').style.display = 'block';
-        });
+<style>
+  h2 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+  }
+  h4 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: inline-block; /* Display h4 elements inline */
+  }
+  .edit-mode {
+    display: none; /* Hide input and buttons by default */
+  }
+</style>
 
-        document.getElementById('cancel-edit-btn').addEventListener('click', function () {
-            document.getElementById('edit-mode').style.display = 'none';
-            document.getElementById('view-mode').style.display = 'block';
-        });
+<div class="container-fluid">
+  <div class="profile-details">
+    <h2>Profile User</h2>
+    <br />
+    <h4>Email: {{session['email']}}</h4>
+    <form id="edit-form" class="form-inline" method="post" action="/profile">
+      <h4>
+        Nama:
+        <span id="nameSpan">{{data['name']}}</span>
+        <input type="text" id="nameInput" name="nameInput" value="{{data['name']}}" class="form-control mx-2 edit-mode">
+      </h4>
+      <button type="submit" id="save-btn" class="btn btn-success mx-2 edit-mode">Save</button>
+      <button type="button" id="cancel-btn" class="btn btn-secondary mx-2 edit-mode">Cancel</button>
+    </form>
+    <button id="edit-btn" class="btn btn-primary mx-2">Edit</button>
+    <a class="btn btn-danger" href="/logout">Logout</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editForm = document.getElementById('edit-form');
+    const editBtn = document.getElementById('edit-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const nameSpan = document.getElementById('nameSpan');
+    const nameInput = document.getElementById('nameInput');
+    nameInput.style.display = 'none';
+
+    editBtn.addEventListener('click', function () {
+      // Show input field, hide span, and toggle buttons
+      nameInput.style.display = 'inline-block';
+      nameSpan.style.display = 'none';
+      editBtn.style.visibility = 'hidden';
+      saveBtn.style.display = 'inline-block';
+      cancelBtn.style.display = 'inline-block';
     });
 
-    var interest = '{{data["data"]["interest"]}}';
-
-    var selectElement = document.getElementById('interest');
-    for (i = 0; i < selectElement.options.length; i++) {
-        if (selectElement.options[i].value === interest) {
-            selectElement.options[i].selected = true;
-            break;
-        }
-    }
+    cancelBtn.addEventListener('click', function () {
+      // Hide input field, show span, and toggle buttons
+      nameInput.style.display = 'none';
+      nameSpan.style.display = 'inline-block';
+      editBtn.style.visibility = 'visible';
+      saveBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+    });
+  });
 </script>
-{% endblock main%}
+
+{% endblock main %}

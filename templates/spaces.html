@@ -10,20 +10,25 @@
     object-fit: contain;
     aspect-ratio: 16/9;
   }
+  h2 {
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+  }
 </style>
 <div class="container-fluid">
-  <h1>Parking Spaces List</h1>
+  <h2>List Parkiran</h2>
   <br />
   <div class="row">
-    {% for img in images %}
+    {% for space in spaces.values() %}
     <div class="col-md-4 mb-4">
       <div class="card">
-        <img src="" class="card-img-top" alt="" />
+        <img src="{{url_for('static', filename='/spaces/'+space['image'])}}" class="card-img-top" alt="Foto {{space['name']}}" />
         <div class="card-body">
-          <h5 class="card-title">i</h5>
-          <p class="card-text">Location: you</p>
-          <p class="card-text">Type: me</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+          <h5 class="card-title">{{space["name"]}}</h5>
+          <p class="card-text">Lokasi: <a href="{{space['link']}}" target="_blank">{{space["link"]}}</a></p>
+          <p class="card-text">Tipe: {{space["type"]}}</p>
+          <a href="#" class="btn btn-primary">Pesan Sekarang</a>
         </div>
       </div>
     </div>

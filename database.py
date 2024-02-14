@@ -56,7 +56,7 @@ def update_user(email: str, data: dict):
     db.child("users").child(encode(email)).update(data)
 
 
-def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long):
+def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str):
     data = {
         space_name: {
             "name": space_name,
@@ -65,7 +65,8 @@ def set_space(space_name: str, type: str, phone:str, image_filename: str, link:s
             "image": image_filename,
             "long": long,
             "lat": lat,
-            "link": link
+            "link": link,
+            "hours": open_hours
         }
     }
     db.child("spaces").update(data) 
@@ -75,5 +76,12 @@ def get_space():
     spaces = db.child("spaces").get().val()
     return spaces
 
+def get_space_name(name: str):
+    space = db.child("spaces").child(name).get().val()
+    return space
+
 def update_space(space: str, data: dict):
-    db.child("spaces").child(encode(space)).update(data)
+    db.child("spaces").child(space).update(data)
+
+def delete_space(name: str):
+    db.child("spaces").child(name).remove()

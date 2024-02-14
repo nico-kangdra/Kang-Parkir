@@ -3,8 +3,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
-from datetime import date
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space
 import json
 
 app = Flask(__name__)
@@ -16,14 +15,6 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(weeks=2)
-
-
-@app.get("/asd")
-def asd():
-    f = open("config.json")
-    api_key = json.load(f)[1]["api_key"]
-    spaces  = get_space()
-    return render_template("asd/asd.html", api_key=api_key, spaces=spaces)
 
 
 @app.get("/")
@@ -50,16 +41,28 @@ def admin_court_post():
     types = request.form["type"]
     lat = request.form["latitude"]
     long = request.form["longitude"]
+    hours = request.form["hours"]
     image = request.files["image"]
+    filename = name + ".png"
     if image:
-        image.save(app.static_folder + "/spaces/" + image.filename)
-    set_space(name, types, phone, image.filename, location, lat, long)
+        image.save(app.static_folder + "/spaces/" + filename)
+    set_space(name, types, phone, filename, location, lat, long, hours)
     return redirect("/admin/spaces")
+
+@app.get("/admin/spaces/<name>")
+def admin_spaces_get(name):
+    space = get_space_name(name)
+    return render_template("/admin/editspace.html", space=space, nav="spaces")
 
 @app.get("/spaces")
 def courts_get():
     spaces = get_space()
-    return render_template("spaces.html", spaces=spaces ,nav="spaces")
+    return render_template("/spaces/spaces.html", spaces=spaces ,nav="spaces")
+
+@app.get("/spaces/<name>")
+def spaces_get(name):
+    space = get_space_name(name)
+    return render_template("/spaces/editspace.html", space=space, nav="spaces")
 
 
 @app.get("/booking")
@@ -70,7 +73,7 @@ def booking_get():
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    return render_template("profile.html", data=data)
+    return render_template("profile.html", data=data, nav="profile")
 
 
 @app.post("/profile")
@@ -83,11 +86,11 @@ def profile_post():
 
 @app.get("/login")
 def login_get():
-    return render_template("login.html", nav="login")
+    return render_template("/login/login.html", nav="login")
 
 @app.get("/forgot")
 def forgot_get():
-    return render_template("forgot.html")
+    return render_template("/login/forgot.html")
 
 @app.post("/forgot")
 def forgot_post():
@@ -131,7 +134,7 @@ def login_admin_post():
 
 @app.get("/register")
 def register_get():
-    return render_template("register.html", nav="login")
+    return render_template("/login/register.html", nav="login")
 
 
 @app.post("/register")
@@ -155,6 +158,13 @@ def logout():
     session.clear()
     return redirect("/")
 
+@app.get("/admin/spaces/delete/<name>")
+def delete_spaces_get(name):
+    image_path = os.path.join(app.static_folder, 'spaces', name+".png")
+    if os.path.exists(image_path):
+        os.remove(image_path)
+    delete_space(name)
+    return redirect("/admin/spaces")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

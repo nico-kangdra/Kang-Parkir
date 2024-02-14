@@ -25,7 +25,7 @@
       }
 
       body {
-        font-family: Arial, sans-serif;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
         line-height: 1.6;
         background-color: #f2f0e9;
       }
@@ -101,9 +101,7 @@
         <div class="nav-buttons">
           <ul>
             {% if nav == "admin" %}
-            <li>
-              {% block admin1 %}{% endblock admin1 %}
-            </li>
+            <li>{% block admin1 %}{% endblock admin1 %}</li>
             {% else %}
             <li>
               <a
@@ -142,16 +140,13 @@
                 >Login</a
               >
             </li>
-            {% endif %}
-            {% endif %}
+            {% endif %} {% endif %}
           </ul>
         </div>
       </nav>
     </header>
     <div id="subHeader">
-      {% if nav == "admin" %}
-        {% block admin2 %}{% endblock admin2 %}
-      {% else %}
+      {% if nav == "admin" %} {% block admin2 %}{% endblock admin2 %} {% else %}
       <a
         href="/"
         class="btn {% if nav == 'home' %} btn-dark {% else %} btn-outline-dark {% endif %}"
@@ -179,8 +174,7 @@
         class="btn {% if nav == 'login' %} btn-dark {% else %} btn-outline-dark {% endif %}"
         >Login</a
       >
-      {% endif %}
-      {% endif %}
+      {% endif %} {% endif %}
     </div>
     <main>{% block main %} {% endblock main %}</main>
 

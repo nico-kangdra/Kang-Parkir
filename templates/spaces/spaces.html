@@ -12,7 +12,6 @@
   }
   h2 {
     text-align: center;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
   }
 </style>
@@ -28,7 +27,7 @@
           <h5 class="card-title">{{space["name"]}}</h5>
           <p class="card-text">Lokasi: <a href="{{space['link']}}" target="_blank">{{space["link"]}}</a></p>
           <p class="card-text">Tipe: {{space["type"]}}</p>
-          <a href="#" class="btn btn-primary">Pesan Sekarang</a>
+          <a href="{{url_for('spaces_get', name=space['name'])}}" class="btn btn-primary">Pesan Sekarang</a>
         </div>
       </div>
     </div>

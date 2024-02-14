@@ -85,3 +85,15 @@ def get_space_name(name: str):
 
 def delete_space(name: str):
     db.child("spaces").child(name).remove()
+
+def temp_payment(email, now, timeout, space, method):
+    data = {
+        encode(email):{
+            now: {
+            "timeout": timeout,
+            "space_name": space,
+            "method": method
+            }
+        }
+    }
+    db.child("temporary").set(data)

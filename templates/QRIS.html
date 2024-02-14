@@ -1,0 +1,21 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: auto; /* Center the container horizontally */
+  }
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+</style>
+<div class="img-container">
+  <img
+    class="img-top"
+    src="{{url_for('static', filename='QRIS.png')}}"
+    alt="QRIS"
+  />
+</div>
+{% endblock main %}

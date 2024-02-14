@@ -1,6 +1,4 @@
-{% extends 'base.html' %}
-
-{% block main %}
+{% extends 'base.html' %} {% block main %}
 <style>
   h2 {
     font-weight: bold;
@@ -22,10 +20,28 @@
       <h4>
         Nama:
         <span id="nameSpan">{{data['name']}}</span>
-        <input type="text" id="nameInput" name="nameInput" value="{{data['name']}}" class="form-control mx-2 edit-mode">
+        <input
+          type="text"
+          id="nameInput"
+          name="nameInput"
+          value="{{data['name']}}"
+          class="form-control mx-2 edit-mode"
+        />
       </h4>
-      <button type="submit" id="save-btn" class="btn btn-success mx-2 edit-mode">Save</button>
-      <button type="button" id="cancel-btn" class="btn btn-secondary mx-2 edit-mode">Cancel</button>
+      <button
+        type="submit"
+        id="save-btn"
+        class="btn btn-success mx-2 edit-mode"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancel-btn"
+        class="btn btn-secondary mx-2 edit-mode"
+      >
+        Cancel
+      </button>
     </form>
     <a class="btn btn-danger" href="/logout">Logout</a>
     <button id="edit-btn" class="btn btn-primary mx-2">Edit</button>
@@ -33,31 +49,31 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const editForm = document.getElementById('edit-form');
-    const editBtn = document.getElementById('edit-btn');
-    const saveBtn = document.getElementById('save-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
-    const nameSpan = document.getElementById('nameSpan');
-    const nameInput = document.getElementById('nameInput');
-    nameInput.style.display = 'none';
+  document.addEventListener("DOMContentLoaded", function () {
+    const editForm = document.getElementById("edit-form");
+    const editBtn = document.getElementById("edit-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const nameSpan = document.getElementById("nameSpan");
+    const nameInput = document.getElementById("nameInput");
+    nameInput.style.display = "none";
 
-    editBtn.addEventListener('click', function () {
+    editBtn.addEventListener("click", function () {
       // Show input field, hide span, and toggle buttons
-      nameInput.style.display = 'inline-block';
-      nameSpan.style.display = 'none';
-      editBtn.style.visibility = 'hidden';
-      saveBtn.style.display = 'inline-block';
-      cancelBtn.style.display = 'inline-block';
+      nameInput.style.display = "inline-block";
+      nameSpan.style.display = "none";
+      editBtn.style.visibility = "hidden";
+      saveBtn.style.display = "inline-block";
+      cancelBtn.style.display = "inline-block";
     });
 
-    cancelBtn.addEventListener('click', function () {
+    cancelBtn.addEventListener("click", function () {
       // Hide input field, show span, and toggle buttons
-      nameInput.style.display = 'none';
-      nameSpan.style.display = 'inline-block';
-      editBtn.style.visibility = 'visible';
-      saveBtn.style.display = 'none';
-      cancelBtn.style.display = 'none';
+      nameInput.style.display = "none";
+      nameSpan.style.display = "inline-block";
+      editBtn.style.visibility = "visible";
+      saveBtn.style.display = "none";
+      cancelBtn.style.display = "none";
     });
   });
 </script>

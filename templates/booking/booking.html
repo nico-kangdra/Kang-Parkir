@@ -35,9 +35,10 @@
   <br />
   <h4>Slot Dipesan: {{session['booking']}}</h4>
   <h4>Tipe: {{session['booktype']|capitalize}}</h4>
+  <h4>Total Harga: {% if session['booktype'] == "mobil" %} {{space['pricecar']|int*session['booking']|int}} {% elif session['booktype'] == "motor" %} {{space['pricemotor']|int*session['booking']|int}} {% endif %}</h4>
   <br /><br /><br />
 
-  <form action="" method="post">
+  <form action="/booking/{{space['name']}}" method="post">
     <div class="form-group col-md-5">
       <label for="payment">Metode Pembayaran:</label>
       <select class="form-control" id="payment" name="payment">

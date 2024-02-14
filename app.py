@@ -3,7 +3,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_space
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_space, temp_payment
 import json
 
 app = Flask(__name__)
@@ -82,6 +82,19 @@ def booking_get(name):
         space = get_space_name(name)
         return render_template("/booking/booking.html", space=space)
     return redirect("/")
+
+@app.post("/booking/<name>")
+def booking_post(name):
+    methods = request.form["payment"]
+    now = datetime.now().timestamp()
+    timeout = now + 3600
+    space = get_space_name(name)
+    if session['booktype'] == "mobil":
+        update_space(name, {"slotcar": int(space["slotcar"]) - int(session["booking"])})
+    elif session['booktype'] == "motor":
+        update_space(name, {"slotmotor": int(space["slotmotor"]) - int(session["booking"])})
+    temp_payment(session["email"], int(now), int(timeout), name, methods)
+    return redirect("/QRIS")
 
 @app.get("/profile")
 def profile_get():
@@ -171,6 +184,10 @@ def register_post():
 def logout():
     session.clear()
     return redirect("/")
+
+@app.get("/QRIS")
+def QRIS():
+    return render_template("QRIS.html")
 
 @app.get("/admin/spaces/delete/<name>")
 def delete_spaces_get(name):

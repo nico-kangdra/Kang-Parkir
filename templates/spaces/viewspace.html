@@ -19,7 +19,8 @@
     font-size: x-large;
   }
 
-  h2, h5 {
+  h2,
+  h5 {
     font-weight: bold;
   }
 
@@ -35,8 +36,21 @@
     margin: 0 5px;
   }
 
-  hr{
+  hr {
     border: 1px solid black;
+  }
+
+  .btn-addmin {
+    width: 40px;
+    height: 40px;
+  }
+
+  #book {
+    width: 45px; /* Adjust the width as needed */
+    height: 40px; /* Set the height equal to the width */
+    text-align: end;
+    font-size: 14px; /* Adjust the font size as needed */
+    margin: 0 5px; /* Adjust the margin as needed */
   }
 </style>
 
@@ -58,33 +72,90 @@
     <a target="_blank" href="{{space['link']}}">Click Here !!</a>
   </p>
   <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
-  <hr>
+  {% if space['type'] == "mobil" %}
+  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+  {% elif space['type'] == "motor" %}
+  <p><span>💵</span> Harga Motor: {{space['motor']}} {{space['pay']}}</p>
+  {% else %}
+  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
+  {% endif %}
+  <hr />
 
   <h5>Booking Slot</h5>
+  <p id="slot-value">Slot Tersedia: {{space['slotcar']}}</p>
   <div class="button-container" id="container1">
-    <button class="btn btn-primary" onclick="switchs(this)">14 Feb</button>
-    <button class="btn btn-secondary" onclick="switchs(this)">15 Feb</button>
-    <button class="btn btn-secondary" onclick="switchs(this)">16 Feb</button>
+    <button class="btn btn-dark">{{today}}</button>
   </div>
   <div class="button-container" id="container2">
-    <button class="btn btn-primary" onclick="switchs(this)"> Mobil </button>
-    <button class="btn btn-secondary" onclick="switchs(this)"> Motor </button>
+    <button class="btn btn-primary" onclick="switchs(this)">Mobil</button>
+    <button class="btn btn-secondary" onclick="switchs(this)">Motor</button>
   </div>
+  <div class="button-container" id="container3">
+    <button class="btn btn-danger btn-addmin" onclick="min()">-</button>
+    <input type="number" name="book" id="book" value="1" min="1" max="" />
+    <button class="btn btn-success btn-addmin" onclick="add()">+</button>
+  </div>
+  <br />
+  <form action="/spaces/{{space['name']}}" method="post" onsubmit="copies()">
+    {% if session.get('token') %}
+    <button type="submit" class="btn btn-primary">Booking</button>
+    {% else %}
+    <a href="/login" class="btn btn-warning">Login Dulu</a>
+    {% endif %}
+    <input
+      id="mynum"
+      name="mynum"
+      type="number"
+      value=""
+      style="display: none"
+    />
+    <input id="mine" name="mine" type="text" value="" style="display: none" />
+  </form>
 </div>
+
 <script>
+  function copies() {
+        var bookValue = document.getElementById("book").value;
+        document.getElementById("mynum").value = bookValue;
+        var selectedType = document.querySelector("#container2 .btn-primary").textContent;
+      if (selectedType === "Mobil") {
+          document.getElementById("mine").value = "mobil";
+      } else if (selectedType === "Motor") {
+          document.getElementById("mine").value = "motor";
+      }
+    }
+
+  function add(){
+    var input = document.getElementById('book');
+    input.value = parseInt(input.value, 10) + 1;
+  }
+  function min(){
+    var input = document.getElementById('book');
+    if (input.value > 1) {
+      input.value = parseInt(input.value, 10) - 1;
+    }
+  }
+
   function switchs(button) {
     var containerId = button.parentElement.id;
     var buttons = document.querySelectorAll(`#${containerId} button`);
-    
+
     // Remove 'btn-primary' class from all buttons
-    buttons.forEach(function(btn) {
-      btn.classList.remove('btn-primary');
-      btn.classList.add('btn-secondary');
+    buttons.forEach(function (btn) {
+      btn.classList.remove("btn-primary");
+      btn.classList.add("btn-secondary");
     });
 
     // Add 'btn-primary' class to the clicked button
-    button.classList.remove('btn-secondary');
-    button.classList.add('btn-primary');
+    button.classList.remove("btn-secondary");
+    button.classList.add("btn-primary");
+
+    var slotValue = 0;
+    if (button.textContent === "Mobil") slotValue = {{space['slotcar']}};
+    else if (button.textContent === "Motor") slotValue = {{space['slotmotor']}};
+
+    document.getElementById('slot-value').textContent = "Slot Tersedia: "+slotValue;
   }
 </script>
 

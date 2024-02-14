@@ -1,8 +1,8 @@
-from flask import Flask, render_template, session, request, redirect, flash
+from flask import Flask, render_template, session, request, redirect, flash, url_for
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from datetime import timedelta
+from datetime import timedelta, datetime
 from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_space
 import json
 
@@ -31,7 +31,7 @@ def admin_court():
     if session.get("roles"):
         spaces = get_space()
         return render_template("admin/spaces.html", spaces=spaces, nav="admin")
-    return redirect("/")
+    return redirect("/login")
 
 @app.post("/admin/spaces")
 def admin_court_post():
@@ -42,12 +42,16 @@ def admin_court_post():
     lat = request.form["latitude"]
     long = request.form["longitude"]
     hours = request.form["hours"]
-    slot = request.form["slot"]
+    slotcar = request.form["slotcar"]
+    slotmotor = request.form["slotmotor"]
+    pricecar = request.form["pricecar"]
+    pricemotor = request.form["pricemotor"]
+    pay = request.form["pay"]
     image = request.files["image"]
     filename = name + ".png"
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
-    set_space(name, types, phone, filename, location, lat, long, hours,slot)
+    set_space(name, types, phone, filename, location, lat, long, hours, slotcar, slotmotor, pricecar, pricemotor, pay)
     return redirect("/admin/spaces")
 
 @app.get("/admin/spaces/<name>")
@@ -63,13 +67,21 @@ def courts_get():
 @app.get("/spaces/<name>")
 def spaces_get(name):
     space = get_space_name(name)
-    return render_template("/spaces/viewspace.html", space=space, nav="spaces")
+    today = datetime.now().date()
+    return render_template("/spaces/viewspace.html", space=space, today=today, nav="spaces")
 
+@app.post("/spaces/<name>")
+def spaces_post(name):
+    session["booking"] = request.form["mynum"]
+    session["booktype"] = request.form["mine"]
+    return redirect(url_for("booking_get", name=name))
 
-@app.get("/booking")
-def booking_get():
-    return render_template("booking.html")
-
+@app.get("/booking/<name>")
+def booking_get(name):
+    if session.get("booking") and session.get("booktype"):
+        space = get_space_name(name)
+        return render_template("/booking/booking.html", space=space)
+    return redirect("/")
 
 @app.get("/profile")
 def profile_get():
@@ -130,7 +142,8 @@ def login_admin_post():
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin/spaces")
-    return redirect("/logout")
+    flash("Email atau Password Salah")
+    return redirect("/login/admin")
 
 
 @app.get("/register")

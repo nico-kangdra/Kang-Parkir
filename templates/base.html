@@ -120,13 +120,6 @@
             {% if session.get("token") %}
             <li>
               <a
-                href="/booking"
-                class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}"
-                >Bookings</a
-              >
-            </li>
-            <li>
-              <a
                 href="/profile"
                 class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"
                 >Profile</a
@@ -158,11 +151,6 @@
         >Spaces</a
       >
       {% if session.get("token") %}
-      <a
-        href="/booking"
-        class="btn {% if nav == 'booking' %} btn-dark {% else %} btn-outline-dark {% endif %}"
-        >Bookings</a
-      >
       <a
         href="/profile"
         class="btn {% if nav == 'profile' %} btn-dark {% else %} btn-outline-dark {% endif %}"

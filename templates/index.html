@@ -86,22 +86,24 @@
             scaledSize: new google.maps.Size(80, 53.7),
           };
               {% for x in spaces.values() %}
-              const marker = new google.maps.Marker({
+              
+              
+
+          listener(
+            new google.maps.Marker({
             position: { lat: Number({{x['lat']}}), lng: Number({{x['long']}}) },
             map: map,
             icon: customMarker,
-          });
-          const infoWindow = new google.maps.InfoWindow({
+          }),
+          new google.maps.InfoWindow({
             content:`<div>
     <h5>{{x['name']}}</h5>
     <a target='_blank' href={{x['link']}}>{{x['link']}}</a>
     <br><br>
     <a class='btn btn-primary' href={{url_for('spaces_get', name=x['name'])}}>View</a>
     </div>`,
-          });
-
-          // Add click listeners to markers
-          listener(marker, infoWindow);
+          })
+          );
               {% endfor %}
               // var data = {{ spaces | tojson | safe }};
               // for (let x in data){

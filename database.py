@@ -1,7 +1,6 @@
 import pyrebase
 from hashlib import sha256
 import json
-from datetime import datetime
 
 f = open("config.json")
 config = json.load(f)[0]
@@ -55,7 +54,7 @@ def update_user(email: str, data: dict):
     db.child("users").child(encode(email)).update(data)
 
 
-def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str, slot):
+def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str, slotcar, slotmotor, pricecar, pricemotor, pay):
     data = {
         "name": space_name,
         "type": type,
@@ -65,7 +64,11 @@ def set_space(space_name: str, type: str, phone:str, image_filename: str, link:s
         "lat": lat,
         "link": link,
         "hours": open_hours,
-        "slot": slot
+        "slotcar": slotcar,
+        "slotmotor": slotmotor,
+        "pricecar": pricecar,
+        "pricemotor": pricemotor,
+        "pay": pay
     }
     db.child("spaces").child(space_name).update(data) 
 

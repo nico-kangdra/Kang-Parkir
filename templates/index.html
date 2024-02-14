@@ -10,7 +10,7 @@
     font-weight: bold;
   }
 </style>
-<h2>Nyari Lokasi Parkir </h2>
+<h2>Nyari Lokasi Parkir</h2>
 <main>
   <input
     id="place-search"
@@ -23,119 +23,120 @@
   <div id="googleMap"></div>
 
   <script>
-    let map;
-    let currentLocationMarker;
-    let selectedMarker;
-    const autocompleteOptions = {
-      types: ["geocode"],
-    };
+        let map;
+        let currentLocationMarker;
+        let selectedMarker;
+        const autocompleteOptions = {
+          types: ["geocode"],
+        };
 
-    function initMap() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const { latitude, longitude } = position.coords;
-          const mapOptions = {
-            center: { lat: latitude, lng: longitude },
-            zoom: 17,
-          };
+        function initMap() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+              const { latitude, longitude } = position.coords;
+              const mapOptions = {
+                center: { lat: latitude, lng: longitude },
+                zoom: 17,
+              };
 
-          map = new google.maps.Map(
-            document.getElementById("googleMap"),
-            mapOptions
-          );
-
-          currentLocationMarker = new google.maps.Marker({
-            position: { lat: latitude, lng: longitude },
-            map: map
-          });
-
-          getCurrentLocationName(latitude, longitude);
-
-          const input = document.getElementById("place-search");
-          const autocomplete = new google.maps.places.Autocomplete(
-            input,
-            autocompleteOptions
-          );
-          autocomplete.bindTo("bounds", map);
-
-          autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            if (!place.geometry) {
-              window.alert(
-                "No details available for input: '" + place.name + "'"
+              map = new google.maps.Map(
+                document.getElementById("googleMap"),
+                mapOptions
               );
-              return;
-            }
 
-            if (selectedMarker) {
-              selectedMarker.setMap(null);
-            }
-            if (currentLocationMarker) {
-              currentLocationMarker.setMap(null);
-            }
+              currentLocationMarker = new google.maps.Marker({
+                position: { lat: latitude, lng: longitude },
+                map: map
+              });
 
-            map.setCenter(place.geometry.location);
-            selectedMarker = new google.maps.Marker({
-              position: place.geometry.location,
-              map: map
-            });
+              getCurrentLocationName(latitude, longitude);
+
+              const input = document.getElementById("place-search");
+              const autocomplete = new google.maps.places.Autocomplete(
+                input,
+                autocompleteOptions
+              );
+              autocomplete.bindTo("bounds", map);
+
+              autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) {
+                  window.alert(
+                    "No details available for input: '" + place.name + "'"
+                  );
+                  return;
+                }
+
+                if (selectedMarker) {
+                  selectedMarker.setMap(null);
+                }
+                if (currentLocationMarker) {
+                  currentLocationMarker.setMap(null);
+                }
+
+                map.setCenter(place.geometry.location);
+                selectedMarker = new google.maps.Marker({
+                  position: place.geometry.location,
+                  map: map
+                });
+              });
+
+              const customMarker = {
+            url: "{{url_for('static', filename='PPP.png')}}",
+            scaledSize: new google.maps.Size(80, 53.7),
+          };
+              {% for x in spaces.values() %}
+              const marker = new google.maps.Marker({
+            position: { lat: Number({{x['lat']}}), lng: Number({{x['long']}}) },
+            map: map,
+            icon: customMarker,
+          });
+          const infoWindow = new google.maps.InfoWindow({
+            content:`<div>
+    <h5>{{x['name']}}</h5>
+    <a target='_blank' href={{x['link']}}>{{x['link']}}</a>
+    <br><br>
+    <a class='btn btn-primary' href={{url_for('spaces_get', name=x['name'])}}>View</a>
+    </div>`,
           });
 
-          const customMarker = {
-        url: "{{url_for('static', filename='PPP.png')}}",
-        scaledSize: new google.maps.Size(80, 53.7),
-      };
-          var data = {{ spaces | tojson | safe }};
-          for (let x in data){
-            console.log(data[x])
-            createMarkers(data[x], customMarker);
-          }
-        });
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
-    }
-
-    function getCurrentLocationName(latitude, longitude) {
-      const geocoder = new google.maps.Geocoder();
-      const latlng = { lat: latitude, lng: longitude };
-
-      geocoder.geocode({ location: latlng }, (results, status) => {
-        if (status === "OK") {
-          if (results[0]) {
-            const currentLocationName = results[0].formatted_address;
-            document.getElementById("place-search").value =
-              currentLocationName;
+          // Add click listeners to markers
+          listener(marker, infoWindow);
+              {% endfor %}
+              // var data = {{ spaces | tojson | safe }};
+              // for (let x in data){
+              //   createMarkers(data[x], customMarker);
+              // }
+            });
           } else {
-            console.error("No results found");
+            alert("Geolocation is not supported by this browser.");
           }
-        } else {
-          console.error("Geocoder failed due to: " + status);
         }
-      });
-    }
 
-    function createMarkers(data, cm) {
-      const marker = new google.maps.Marker({
-        position: { lat: Number(data['lat']), lng: Number(data['long']) },
-        map: map,
-        icon: cm,
-      });
+        function getCurrentLocationName(latitude, longitude) {
+          const geocoder = new google.maps.Geocoder();
+          const latlng = { lat: latitude, lng: longitude };
 
-      const infoWindow = new google.maps.InfoWindow({
-        content:
-          "<div><h5><a href='#'> "+data['name']+" </a></h5><a target='_blank' href="+data['link']+">"+data['link']+"</a></div>",
-      });
+          geocoder.geocode({ location: latlng }, (results, status) => {
+            if (status === "OK") {
+              if (results[0]) {
+                const currentLocationName = results[0].formatted_address;
+                document.getElementById("place-search").value =
+                  currentLocationName;
+              } else {
+                console.error("No results found");
+              }
+            } else {
+              console.error("Geocoder failed due to: " + status);
+            }
+          });
+        }
 
-      // Add click listeners to markers
-      listener(marker, infoWindow);
-    }
-
-    function listener(marker, infoWindow) {
-      marker.addListener("click", function () {
-        infoWindow.open(map, marker);
-      });
-    }
+        function listener(marker, infoWindow) {
+          marker.addListener("click", function () {
+            infoWindow.open(map, marker);
+          });
+        }
   </script>
 </main>
 

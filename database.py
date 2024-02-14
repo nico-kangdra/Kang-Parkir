@@ -1,6 +1,7 @@
 import pyrebase
 from hashlib import sha256
 import json
+from datetime import datetime
 
 f = open("config.json")
 config = json.load(f)[0]
@@ -40,13 +41,11 @@ def login(email: str, password: str):
 
 def set_user(email: str, password: str, name: str):
     data = {
-        encode(email): {
-            "email": email,
-            "password": encode(password),
-            "name": name,
-        }
+        "email": email,
+        "password": encode(password),
+        "name": name,
     }
-    db.child("users").update(data)
+    db.child("users").child(encode(email)).update(data)
 
 
 def get_user(email: str):
@@ -56,21 +55,22 @@ def update_user(email: str, data: dict):
     db.child("users").child(encode(email)).update(data)
 
 
-def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str):
+def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str, slot):
     data = {
-        space_name: {
-            "name": space_name,
-            "type": type,
-            "phone": phone,
-            "image": image_filename,
-            "long": long,
-            "lat": lat,
-            "link": link,
-            "hours": open_hours
-        }
+        "name": space_name,
+        "type": type,
+        "phone": phone,
+        "image": image_filename,
+        "long": long,
+        "lat": lat,
+        "link": link,
+        "hours": open_hours,
+        "slot": slot
     }
-    db.child("spaces").update(data) 
+    db.child("spaces").child(space_name).update(data) 
 
+def update_space(space: str, data: dict):
+    db.child("spaces").child(space).update(data)
 
 def get_space():
     spaces = db.child("spaces").get().val()
@@ -79,9 +79,6 @@ def get_space():
 def get_space_name(name: str):
     space = db.child("spaces").child(name).get().val()
     return space
-
-def update_space(space: str, data: dict):
-    db.child("spaces").child(space).update(data)
 
 def delete_space(name: str):
     db.child("spaces").child(name).remove()

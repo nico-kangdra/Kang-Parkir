@@ -1,0 +1,91 @@
+{% extends 'base.html' %} {% block main %}
+<!-- Styles -->
+<style>
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+    text-align: center; /* Center the content within the container */
+  }
+
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+
+  span {
+    font-size: x-large;
+  }
+
+  h2, h5 {
+    font-weight: bold;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust the margin as needed */
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: auto; /* Allow the button to adjust its width based on content */
+    margin: 0 5px;
+  }
+
+  hr{
+    border: 1px solid black;
+  }
+</style>
+
+<!-- Content -->
+<div class="img-container">
+  <img
+    class="d-block w-100 img-top"
+    src="{{ url_for('static', filename='/spaces/' + space['image']) }}"
+    alt="Foto {{ space['name'] }}"
+  />
+
+  <br /><br />
+  <h2>{{space['name']}}</h2>
+  <br />
+  <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
+  <p><span>📞</span> Phone Number: {{space['phone']}}</p>
+  <p>
+    <span>📍</span> Location:
+    <a target="_blank" href="{{space['link']}}">Click Here !!</a>
+  </p>
+  <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
+  <hr>
+
+  <h5>Booking Slot</h5>
+  <div class="button-container" id="container1">
+    <button class="btn btn-primary" onclick="switchs(this)">14 Feb</button>
+    <button class="btn btn-secondary" onclick="switchs(this)">15 Feb</button>
+    <button class="btn btn-secondary" onclick="switchs(this)">16 Feb</button>
+  </div>
+  <div class="button-container" id="container2">
+    <button class="btn btn-primary" onclick="switchs(this)"> Mobil </button>
+    <button class="btn btn-secondary" onclick="switchs(this)"> Motor </button>
+  </div>
+</div>
+<script>
+  function switchs(button) {
+    var containerId = button.parentElement.id;
+    var buttons = document.querySelectorAll(`#${containerId} button`);
+    
+    // Remove 'btn-primary' class from all buttons
+    buttons.forEach(function(btn) {
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-secondary');
+    });
+
+    // Add 'btn-primary' class to the clicked button
+    button.classList.remove('btn-secondary');
+    button.classList.add('btn-primary');
+  }
+</script>
+
+{% endblock main %}

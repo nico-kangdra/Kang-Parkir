@@ -3,7 +3,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_space
 import json
 
 app = Flask(__name__)
@@ -42,11 +42,12 @@ def admin_court_post():
     lat = request.form["latitude"]
     long = request.form["longitude"]
     hours = request.form["hours"]
+    slot = request.form["slot"]
     image = request.files["image"]
     filename = name + ".png"
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
-    set_space(name, types, phone, filename, location, lat, long, hours)
+    set_space(name, types, phone, filename, location, lat, long, hours,slot)
     return redirect("/admin/spaces")
 
 @app.get("/admin/spaces/<name>")
@@ -62,7 +63,7 @@ def courts_get():
 @app.get("/spaces/<name>")
 def spaces_get(name):
     space = get_space_name(name)
-    return render_template("/spaces/editspace.html", space=space, nav="spaces")
+    return render_template("/spaces/viewspace.html", space=space, nav="spaces")
 
 
 @app.get("/booking")

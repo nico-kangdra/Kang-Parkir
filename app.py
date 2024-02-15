@@ -107,7 +107,9 @@ def booking_post(name):
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    booking = dict(reversed(dict(get_booking(session["email"])).items()))
+    booking = get_booking(session["email"])
+    if booking:
+        booking = dict(reversed(dict(booking).items()))
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 

@@ -29,7 +29,7 @@
             </form>
             <br>
             {% for message in get_flashed_messages() %}
-            <h3 style="color: red">{{ message }}</h3>
+      <h5 class="alert alert-danger">{{ message }}</h5>
             {% endfor %}
         </div>
     </div>

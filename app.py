@@ -3,7 +3,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_space, temp_payment
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_slot, make_booking, get_booking, change_booking_status
 import json
 
 app = Flask(__name__)
@@ -42,22 +42,27 @@ def admin_court_post():
     lat = request.form["latitude"]
     long = request.form["longitude"]
     hours = request.form["hours"]
-    slotcar = request.form["slotcar"]
-    slotmotor = request.form["slotmotor"]
-    pricecar = request.form["pricecar"]
-    pricemotor = request.form["pricemotor"]
+    slotcar = request.form.get("slotcar")
+    slotmotor = request.form.get("slotmotor")
+    pricecar = request.form.get("pricecar")
+    pricemotor = request.form.get("pricemotor")
     pay = request.form["pay"]
     image = request.files["image"]
+    hiddeninfo = request.form["info"]
     filename = name + ".png"
+    if hiddeninfo == "edit":
+        date = (datetime.now()+timedelta(days=1)).strftime('%Y%m%d')
+    else:
+        date = datetime.now().strftime('%Y%m%d')
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
-    set_space(name, types, phone, filename, location, lat, long, hours, slotcar, slotmotor, pricecar, pricemotor, pay)
+    set_space(name, types, phone, filename, location, lat, long, hours, pay, date, slotcar, slotmotor, pricecar, pricemotor)
     return redirect("/admin/spaces")
 
 @app.get("/admin/spaces/<name>")
 def admin_spaces_get(name):
     space = get_space_name(name)
-    return render_template("/admin/editspace.html", space=space, nav="spaces")
+    return render_template("/admin/editspace.html", space=space, nav="admin")
 
 @app.get("/spaces")
 def courts_get():
@@ -67,7 +72,7 @@ def courts_get():
 @app.get("/spaces/<name>")
 def spaces_get(name):
     space = get_space_name(name)
-    today = datetime.now().date()
+    today = datetime.now().strftime('%Y%m%d')
     return render_template("/spaces/viewspace.html", space=space, today=today, nav="spaces")
 
 @app.post("/spaces/<name>")
@@ -78,10 +83,12 @@ def spaces_post(name):
 
 @app.get("/booking/<name>")
 def booking_get(name):
-    if session.get("booking") and session.get("booktype"):
+    if session.get("token") and session.get("booking") and session.get("booktype"):
         space = get_space_name(name)
         return render_template("/booking/booking.html", space=space)
-    return redirect("/")
+    session.pop("booking")
+    session.pop("booktype")
+    return redirect("/spaces")
 
 @app.post("/booking/<name>")
 def booking_post(name):
@@ -89,17 +96,19 @@ def booking_post(name):
     now = datetime.now().timestamp()
     timeout = now + 3600
     space = get_space_name(name)
+    today = datetime.now().strftime('%Y%m%d')
     if session['booktype'] == "mobil":
-        update_space(name, {"slotcar": int(space["slotcar"]) - int(session["booking"])})
+        update_slot(name, today, {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])})
     elif session['booktype'] == "motor":
-        update_space(name, {"slotmotor": int(space["slotmotor"]) - int(session["booking"])})
-    temp_payment(session["email"], int(now), int(timeout), name, methods)
-    return redirect("/QRIS")
+        update_slot(name, today, {"slotmotor": int(space["slot"][today]["slotmotor"]) - int(session["booking"])})
+    make_booking(session, int(now), int(timeout), name, methods)
+    return redirect(url_for("QRIS", name=int(now)))
 
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    return render_template("profile.html", data=data, nav="profile")
+    booking = dict(reversed(dict(get_booking(session["email"])).items()))
+    return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
 @app.post("/profile")
@@ -112,6 +121,8 @@ def profile_post():
 
 @app.get("/login")
 def login_get():
+    if session.get("token"):
+        return redirect("/profile")
     return render_template("/login/login.html", nav="login")
 
 @app.get("/forgot")
@@ -185,9 +196,9 @@ def logout():
     session.clear()
     return redirect("/")
 
-@app.get("/QRIS")
-def QRIS():
-    return render_template("QRIS.html")
+@app.get("/QRIS/<name>")
+def QRIS(name):
+    return render_template("QRIS.html", name=name)
 
 @app.get("/admin/spaces/delete/<name>")
 def delete_spaces_get(name):
@@ -196,6 +207,16 @@ def delete_spaces_get(name):
         os.remove(image_path)
     delete_space(name)
     return redirect("/admin/spaces")
+
+@app.get("/cancel/<book>")
+def cancel(book):
+    change_booking_status(session['email'], book)
+    return redirect("/profile")
+
+@app.get("/paid/<book>")
+def paid(book):
+    change_booking_status(session['email'], book, "Sudah Dibayar")
+    return redirect(url_for("QRIS", name=book))
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

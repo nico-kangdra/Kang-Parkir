@@ -17,6 +17,7 @@
   span {
     font-size: x-large;
   }
+
 </style>
 
 <!-- Content -->
@@ -33,6 +34,16 @@
       action="/admin/spaces"
       enctype="multipart/form-data"
     >
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="info"
+        name="info"
+        value="edit"
+        style="display: none;"
+      />
+    </div>
       <div class="form-group">
         <label for="name">Nama Parkiran:</label>
         <input
@@ -73,8 +84,16 @@
           value="{{space['link']}}"
         />
       </div>
+      <div class="form-group">
+        <select class="form-control" id="type" name="type" style="display: none;">
+          <option value="hybrid" {% if space['type'] == 'hybrid' %} selected {% endif %}>Hybrid</option>
+          <option value="mobil" {% if space['type'] == 'mobil' %} selected {% endif %}>Mobil</option>
+          <option value="motor" {% if space['type'] == 'motor' %} selected {% endif %}>Motor</option>
+        </select>
+      </div>
       <div class="form-row">
-        <div class="form-group col-md-4">
+      {% if space["type"] == 'mobil' %}
+        <div class="form-group col-md-7">
           <label for="pricecar">Harga Mobil:</label>
           <input
             type="text"
@@ -82,22 +101,21 @@
             id="pricecar"
             name="pricecar"
             value="{{space['pricecar']}}"
-            {% if space["type"] == 'motor' %} disabled {% endif %}
           />
         </div>
-        <div class="form-group col-md-2">
+        <div class="form-group col-md-5">
           <label for="slotcar">Slot Mobil:</label>
           <input
             type="number"
             class="form-control"
             id="slotcar"
             name="slotcar"
-            value="{{space['slotcar']}}"
+            value="{{space['car']}}"
             min=0
-            {% if space["type"] == 'motor' %} disabled {% endif %}
           />
         </div>
-        <div class="form-group col-md-4">
+        {% elif space["type"] == 'motor' %}
+        <div class="form-group col-md-7">
           <label for="pricemotor">Harga Motor:</label>
           <input
             type="text"
@@ -105,22 +123,65 @@
             id="pricemotor"
             name="pricemotor"
             value="{{space['pricemotor']}}"
-            {% if space["type"] == 'mobil' %} disabled {% endif %}
           />
         </div>
-        <div class="form-group col-md-2">
+        <div class="form-group col-md-5">
           <label for="slotmotor">Slot Motor:</label>
           <input
             type="number"
             class="form-control"
             id="slotmotor"
             name="slotmotor"
-            value="{{space['slotmotor']}}"
+            value="{{space['motor']}}"
             min=0
-            {% if space["type"] == 'mobil' %} disabled {% endif %}
           />
         </div>
+        {% else %}
+          <div class="form-group col-md-4">
+            <label for="pricecar">Harga Mobil:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="pricecar"
+              name="pricecar"
+              value="{{space['pricecar']}}"
+            />
+          </div>
+          <div class="form-group col-md-2">
+            <label for="slotcar">Slot Mobil:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="slotcar"
+              name="slotcar"
+              value="{{space['car']}}"
+              min=0
+            />
+          </div>
+          <div class="form-group col-md-4">
+            <label for="pricemotor">Harga Motor:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="pricemotor"
+              name="pricemotor"
+              value="{{space['pricemotor']}}"
+            />
+          </div>
+          <div class="form-group col-md-2">
+            <label for="slotmotor">Slot Motor:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="slotmotor"
+              name="slotmotor"
+              value="{{space['motor']}}"
+              min=0
+            />
+          </div>
+      {% endif %}
       </div>
+
       <div class="form-row">
         <div class="form-group col-md-4">
           <label for="pay">Tipe Pembayaran:</label>
@@ -149,14 +210,6 @@
             value="{{space['long']}}"
           />
         </div>
-      </div>
-      <div class="form-group">
-        <label for="type">Tipe Parkiran:</label>
-        <select class="form-control" id="type" name="type">
-          <option value="hybrid" {% if space["type"] == 'hybrid' %} selected {% endif %}>Hybrid</option>
-          <option value="mobil" {% if space["type"] == 'mobil' %} selected {% endif %}>Mobil</option>
-          <option value="motor" {% if space["type"] == 'motor' %} selected {% endif %}>Motor</option>
-        </select>
       </div>
       <div class="form-group">
         <label for="image">Image:</label>

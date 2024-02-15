@@ -25,6 +25,10 @@
     bottom: 20px;
     left: 20px;
   }
+
+  #hiddeninfo{
+    display: none;
+  }
 </style>
 <div class="container-fluid">
   <div id="view-mode">
@@ -57,7 +61,7 @@
               href="{{url_for('delete_spaces_get', name=space['name'])}}"
               class="btn btn-danger"
               onclick="return confirmDelete()"
-              >Delete Item</a
+              >Hapus Parkiran</a
             >
           </div>
         </div>
@@ -74,6 +78,16 @@
       action="/admin/spaces"
       enctype="multipart/form-data"
     >
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="info"
+        name="info"
+        value="new"
+        style="display: none;"
+      />
+    </div>
       <div class="form-group">
         <label for="name">Nama Parkiran:</label>
         <input
@@ -113,6 +127,14 @@
           name="location"
           value=""
         />
+      </div>
+      <div class="form-group">
+        <label for="type">Tipe Parkiran:</label>
+        <select class="form-control" id="type" name="type">
+          <option value="hybrid">Hybrid</option>
+          <option value="mobil">Mobil</option>
+          <option value="motor">Motor</option>
+        </select>
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
@@ -186,14 +208,6 @@
             value=""
           />
         </div>
-      </div>
-      <div class="form-group">
-        <label for="type">Tipe Parkiran:</label>
-        <select class="form-control" id="type" name="type">
-          <option value="hybrid">Hybrid</option>
-          <option value="mobil">Mobil</option>
-          <option value="motor">Motor</option>
-        </select>
       </div>
       <div class="form-group">
         <label for="image">Image:</label>

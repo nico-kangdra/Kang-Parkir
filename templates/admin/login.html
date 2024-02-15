@@ -38,11 +38,7 @@
             </form>
             <br>
             {% for message in get_flashed_messages() %}
-            {% if 'Verfication' in message %}
-            <h3 style="color: green">{{ message }}</h3>
-            {% else %}
-            <h3 style="color: red">{{ message }}</h3>
-            {% endif %}
+            <h5 class="alert alert-danger">{{ message }}</h5>
             {% endfor %}
         </div>
     </div>

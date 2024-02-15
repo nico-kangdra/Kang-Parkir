@@ -11,11 +11,11 @@ db = firebase.database()
 storage = firebase.storage()
 
 
-def encode(var: str):
+def encode(var):
     return sha256(var.encode("utf-8")).hexdigest()
 
 
-def register(email: str, password: str):
+def register(email, password):
     try:
         user = auth.create_user_with_email_and_password(email, password)
         auth.send_email_verification(user["idToken"])
@@ -23,14 +23,14 @@ def register(email: str, password: str):
     except:
         return "There's an error occured"
     
-def forgot(email: str):
+def forgot(email):
     try:
         auth.send_password_reset_email(email)
         return "Reset link has been sent to your Email"
     except:
         return "Email not Found"
 
-def login(email: str, password: str):
+def login(email, password):
     try:
         user = auth.sign_in_with_email_and_password(email,password)
         user = auth.refresh(user["refreshToken"])
@@ -38,7 +38,7 @@ def login(email: str, password: str):
     except:
         return "Email or Password is wrong"
 
-def set_user(email: str, password: str, name: str):
+def set_user(email, password, name):
     data = {
         "email": email,
         "password": encode(password),
@@ -47,14 +47,14 @@ def set_user(email: str, password: str, name: str):
     db.child("users").child(encode(email)).update(data)
 
 
-def get_user(email: str):
+def get_user(email):
     return db.child("users").child(encode(email)).get().val()
 
-def update_user(email: str, data: dict):
+def update_user(email, data: dict):
     db.child("users").child(encode(email)).update(data)
 
 
-def set_space(space_name: str, type: str, phone:str, image_filename: str, link:str, lat, long, open_hours:str, slotcar, slotmotor, pricecar, pricemotor, pay):
+def set_space(space_name, type, phone, image_filename, link, lat, long, open_hours, pay, date, slotcar="", slotmotor="", pricecar="", pricemotor=""):
     data = {
         "name": space_name,
         "type": type,
@@ -64,36 +64,51 @@ def set_space(space_name: str, type: str, phone:str, image_filename: str, link:s
         "lat": lat,
         "link": link,
         "hours": open_hours,
-        "slotcar": slotcar,
-        "slotmotor": slotmotor,
         "pricecar": pricecar,
         "pricemotor": pricemotor,
-        "pay": pay
+        "pay": pay,
+        "car": slotcar,
+        "motor": slotmotor,
     }
-    db.child("spaces").child(space_name).update(data) 
+    dates = {
+        "slotcar": slotcar,
+        "slotmotor": slotmotor,
+    }
 
-def update_space(space: str, data: dict):
-    db.child("spaces").child(space).update(data)
+    db.child("spaces").child(space_name).update(data) 
+    update_slot(space_name, date, dates)
+
+def update_slot(space_name, date, data):
+    db.child("spaces").child(space_name).child("slot").child(date).update(data)
 
 def get_space():
     spaces = db.child("spaces").get().val()
     return spaces
 
-def get_space_name(name: str):
+def get_space_name(name):
     space = db.child("spaces").child(name).get().val()
     return space
 
-def delete_space(name: str):
+def delete_space(name):
     db.child("spaces").child(name).remove()
 
-def temp_payment(email, now, timeout, space, method):
+def make_booking(session, now, timeout, space, method):
     data = {
-        encode(email):{
-            now: {
-            "timeout": timeout,
-            "space_name": space,
-            "method": method
-            }
-        }
+        "timeout": timeout,
+        "space_name": space,
+        "method": method,
+        "qty": session['booking'],
+        "tipe": session['booktype'],
+        "status": "Belum Dibayar"
     }
-    db.child("temporary").set(data)
+    db.child("users").child(encode(session['email'])).child('order').child(now).set(data)
+
+def get_booking(email):
+    book = db.child("users").child(encode(email)).child("order").get().val()
+    return book
+
+def change_booking_status(email, now, status="Dibatalkan"):
+    db.child("users").child(encode(email)).child("order").child(now).update({"status": status})
+
+a = get_booking("nkangdra@gmail.com")
+print(a)

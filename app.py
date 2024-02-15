@@ -1,15 +1,14 @@
-from flask import Flask, render_template, session, request, redirect, flash
+from flask import Flask, render_template, session, request, redirect, flash, url_for
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from datetime import timedelta
-from datetime import date
-from database import login, register, set_user, get_user, update_user
+from datetime import timedelta, datetime
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_slot, make_booking, get_booking, change_booking_status
 import json
 
 app = Flask(__name__)
-app.secret_key = "LETSGOSPORT"
-limiter = Limiter(get_remote_address, app=app, default_limits=["3/second"])
+app.secret_key = json.load(open("config.json"))[2]["secret"]
+limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 
 
 @app.before_request
@@ -21,49 +20,123 @@ def before_request():
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
-    return render_template("index.html", images=images)
+    f = open("config.json")
+    api_key = json.load(f)[1]["api_key"]
+    spaces  = get_space()
+    return render_template("index.html", api_key=api_key, spaces=spaces, images=images, nav="home")
 
 
-@app.get("/admin")
-def admin():
+@app.get("/admin/spaces")
+def admin_court():
     if session.get("roles"):
-        return render_template("admin/admin.html")
-    return redirect("/")
+        spaces = get_space()
+        return render_template("admin/spaces.html", spaces=spaces, nav="admin")
+    return redirect("/login")
 
+@app.post("/admin/spaces")
+def admin_court_post():
+    name = request.form["name"]
+    phone = request.form["phone"]
+    location = request.form["location"]
+    types = request.form["type"]
+    lat = request.form["latitude"]
+    long = request.form["longitude"]
+    hours = request.form["hours"]
+    slotcar = request.form.get("slotcar")
+    slotmotor = request.form.get("slotmotor")
+    pricecar = request.form.get("pricecar")
+    pricemotor = request.form.get("pricemotor")
+    pay = request.form["pay"]
+    image = request.files["image"]
+    hiddeninfo = request.form["info"]
+    filename = name + ".png"
+    if hiddeninfo == "edit":
+        date = (datetime.now()+timedelta(days=1)).strftime('%Y%m%d')
+    else:
+        date = datetime.now().strftime('%Y%m%d')
+    if image:
+        image.save(app.static_folder + "/spaces/" + filename)
+    set_space(name, types, phone, filename, location, lat, long, hours, pay, date, slotcar, slotmotor, pricecar, pricemotor)
+    return redirect("/admin/spaces")
 
-@app.get("/courts")
+@app.get("/admin/spaces/<name>")
+def admin_spaces_get(name):
+    space = get_space_name(name)
+    return render_template("/admin/editspace.html", space=space, nav="admin")
+
+@app.get("/spaces")
 def courts_get():
-    images = sorted(os.listdir(app.static_folder + "/courts"))
-    return render_template("courts.html", images=images)
+    spaces = get_space()
+    return render_template("/spaces/spaces.html", spaces=spaces ,nav="spaces")
 
+@app.get("/spaces/<name>")
+def spaces_get(name):
+    space = get_space_name(name)
+    today = datetime.now().strftime('%Y%m%d')
+    return render_template("/spaces/viewspace.html", space=space, today=today, nav="spaces")
 
-@app.get("/booking")
-def booking_get():
-    return render_template("booking.html")
+@app.post("/spaces/<name>")
+def spaces_post(name):
+    session["booking"] = request.form["mynum"]
+    session["booktype"] = request.form["mine"]
+    return redirect(url_for("booking_get", name=name))
 
+@app.get("/booking/<name>")
+def booking_get(name):
+    if session.get("token") and session.get("booking") and session.get("booktype"):
+        space = get_space_name(name)
+        return render_template("/booking/booking.html", space=space)
+    session.pop("booking")
+    session.pop("booktype")
+    return redirect("/spaces")
+
+@app.post("/booking/<name>")
+def booking_post(name):
+    methods = request.form["payment"]
+    now = datetime.now().timestamp()
+    timeout = now + 3600
+    space = get_space_name(name)
+    today = datetime.now().strftime('%Y%m%d')
+    if session['booktype'] == "mobil":
+        update_slot(name, today, {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])})
+    elif session['booktype'] == "motor":
+        update_slot(name, today, {"slotmotor": int(space["slot"][today]["slotmotor"]) - int(session["booking"])})
+    make_booking(session, int(now), int(timeout), name, methods)
+    return redirect(url_for("QRIS", name=int(now)))
 
 @app.get("/profile")
 def profile_get():
     data = get_user(session["email"])
-    year = date.today().year
-    age = year - int(data["data"]["born"])
-    return render_template("profile.html", data=data, year=year, age=age)
+    booking = get_booking(session["email"])
+    if booking:
+        booking = dict(reversed(dict(booking).items()))
+    return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
 @app.post("/profile")
 def profile_post():
-    name = request.form["name"]
-    born = request.form["born"]
-    interest = request.form["interest"]
-    data = {"name": name, "born": born, "interest": interest}
+    name = request.form["nameInput"]
+    data = {'name': name}
     update_user(session["email"], data)
     return redirect("/profile")
 
 
 @app.get("/login")
 def login_get():
-    return render_template("login.html")
+    if session.get("token"):
+        return redirect("/profile")
+    return render_template("/login/login.html", nav="login")
 
+@app.get("/forgot")
+def forgot_get():
+    return render_template("/login/forgot.html")
+
+@app.post("/forgot")
+def forgot_post():
+    email = request.form["email"]
+    res = forgot(email)
+    flash(res)
+    return redirect('/forgot')
 
 @app.post("/login")
 def login_post():
@@ -90,26 +163,24 @@ def login_admin_get():
 def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
-    log_in = login(email, password)
-    f = open("account.json")
-    acc = json.load(f)
+    f = open("config.json")
+    acc = json.load(f)[1]
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
-        return redirect("/admin")
+        return redirect("/admin/spaces")
+    flash("Email atau Password Salah")
+    return redirect("/login/admin")
 
 
 @app.get("/register")
 def register_get():
-    year = date.today().year
-    return render_template("register.html", year=year)
+    return render_template("/login/register.html", nav="login")
 
 
 @app.post("/register")
 def register_post():
     email = request.form["email"]
     name = request.form["name"]
-    born = request.form["born"]
-    interest = request.form["interest"]
     password = request.form["password"]
 
     if get_user(email):
@@ -117,7 +188,7 @@ def register_post():
         return redirect("/register")
     else:
         message = register(email, password)
-        set_user(email, password, name, born, interest)
+        set_user(email, password, name)
         flash(message)
         return redirect("/login")
 
@@ -127,6 +198,27 @@ def logout():
     session.clear()
     return redirect("/")
 
+@app.get("/QRIS/<name>")
+def QRIS(name):
+    return render_template("QRIS.html", name=name)
+
+@app.get("/admin/spaces/delete/<name>")
+def delete_spaces_get(name):
+    image_path = os.path.join(app.static_folder, 'spaces', name+".png")
+    if os.path.exists(image_path):
+        os.remove(image_path)
+    delete_space(name)
+    return redirect("/admin/spaces")
+
+@app.get("/cancel/<book>")
+def cancel(book):
+    change_booking_status(session['email'], book)
+    return redirect("/profile")
+
+@app.get("/paid/<book>")
+def paid(book):
+    change_booking_status(session['email'], book, "Sudah Dibayar")
+    return redirect(url_for("QRIS", name=book))
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

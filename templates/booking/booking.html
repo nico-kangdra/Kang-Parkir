@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+  }
+
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+
+  h2,
+  h4 {
+    text-align: center;
+  }
+  h2 {
+    font-weight: bold;
+  }
+  .form-group {
+    margin: auto;
+  }
+</style>
+<div class="img-container">
+  <img
+    src="{{url_for('static', filename='/spaces/'+space['image'])}}"
+    class="card-img-top"
+    alt="Foto {{space['name']}}"
+  />
+  <br /><br />
+  <h2>{{space['name']}}</h2>
+  <br />
+  <h4>Slot Dipesan: {{session['booking']}}</h4>
+  <h4>Tipe: {{session['booktype']|capitalize}}</h4>
+  <h4>Total Harga: {% if session['booktype'] == "mobil" %} {{space['pricecar']|int*session['booking']|int}} {% elif session['booktype'] == "motor" %} {{space['pricemotor']|int*session['booking']|int}} {% endif %}</h4>
+  <br /><br />
+
+  <form action="/booking/{{space['name']}}" method="post">
+    <div class="form-group col-md-5">
+      <label for="payment">Metode Pembayaran:</label>
+      <select class="form-control" id="payment" name="payment">
+        <option value="qris">QRIS</option>
+        <option value="gopay">Gopay</option>
+        <option value="ovo">OVO</option>
+      </select>
+      <br />
+      <button class="btn btn-success" type="submit">Lanjut Bayar</button>
+    </div>
+  </form>
+</div>
+{% endblock main %}

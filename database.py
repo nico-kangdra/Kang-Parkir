@@ -3,7 +3,7 @@ from hashlib import sha256
 import json
 
 f = open("config.json")
-config = json.load(f)
+config = json.load(f)[0]
 
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
@@ -11,86 +11,104 @@ db = firebase.database()
 storage = firebase.storage()
 
 
-def encode(var: str):
+def encode(var):
     return sha256(var.encode("utf-8")).hexdigest()
 
 
-def register(email: str, password: str):
+def register(email, password):
     try:
         user = auth.create_user_with_email_and_password(email, password)
         auth.send_email_verification(user["idToken"])
         return "Verfication link has been sent to your Email"
     except:
         return "There's an error occured"
+    
+def forgot(email):
+    try:
+        auth.send_password_reset_email(email)
+        return "Reset link has been sent to your Email"
+    except:
+        return "Email not Found"
 
-def login(email: str, password: str):
+def login(email, password):
     try:
         user = auth.sign_in_with_email_and_password(email,password)
         user = auth.refresh(user["refreshToken"])
         return (auth.get_account_info(user["idToken"])["users"][0]["emailVerified"], user["idToken"])
     except:
-        return "Email or Password not found"
+        return "Email or Password is wrong"
 
-def set_user(email: str, password: str, name: str, born: int, interest: str):
+def set_user(email, password, name):
     data = {
-        encode(email): {
-            "email": email,
-            "password": encode(password),
-            "data": {
-                "name": name,
-                "born": born,
-                "interest": interest,
-            },
-        }
+        "email": email,
+        "password": encode(password),
+        "name": name,
     }
-    db.child("users").update(data)
+    db.child("users").child(encode(email)).update(data)
 
 
-def get_user(email: str):
+def get_user(email):
     return db.child("users").child(encode(email)).get().val()
 
+def update_user(email, data: dict):
+    db.child("users").child(encode(email)).update(data)
 
-def update_user(email: str, data: dict):
-    db.child("users").child(encode(email)).child("data").update(data)
 
-
-def set_court(court: str, location: str, link: str, type: str, image_filename: str):
+def set_space(space_name, type, phone, image_filename, link, lat, long, open_hours, pay, date, slotcar="", slotmotor="", pricecar="", pricemotor=""):
     data = {
-        encode(court): {
-            "name": court,
-            "location": location,
-            "link": link,
-            "type": type,
-            "image": image_filename,
-        }
+        "name": space_name,
+        "type": type,
+        "phone": phone,
+        "image": image_filename,
+        "long": long,
+        "lat": lat,
+        "link": link,
+        "hours": open_hours,
+        "pricecar": pricecar,
+        "pricemotor": pricemotor,
+        "pay": pay,
+        "car": slotcar,
+        "motor": slotmotor,
     }
-    db.child("courts").update(data)
+    dates = {
+        "slotcar": slotcar,
+        "slotmotor": slotmotor,
+    }
 
+    db.child("spaces").child(space_name).update(data) 
+    update_slot(space_name, date, dates)
 
-def get_court(court: str):
-    return db.child("courts").child(encode(court)).get().val()
+def update_slot(space_name, date, data):
+    db.child("spaces").child(space_name).child("slot").child(date).update(data)
 
+def get_space():
+    spaces = db.child("spaces").get().val()
+    return spaces
 
-def update_court(court: str, data: dict):
-    db.child("courts").child(encode(court)).update(data)
+def get_space_name(name):
+    space = db.child("spaces").child(name).get().val()
+    return space
 
+def delete_space(name):
+    db.child("spaces").child(name).remove()
 
-def set_timeslot(court: str, data:dict):
-    db.child("courts").child(encode(court)).child("timeslot").update(data)
+def make_booking(session, now, timeout, space, method):
+    data = {
+        "timeout": timeout,
+        "space_name": space,
+        "method": method,
+        "qty": session['booking'],
+        "tipe": session['booktype'],
+        "status": "Belum Dibayar"
+    }
+    db.child("users").child(encode(session['email'])).child('order').child(now).set(data)
 
-# set_court("Kharisma","Kalideres","null","Badminton","None")
-# set_timeslot("Kharisma")
-# print(get_court("Kharisma"))
-# def get_user(email:str)
+def get_booking(email):
+    book = db.child("users").child(encode(email)).child("order").get().val()
+    return book
 
-# user = register("nkangdra@gmail.com","aaaaaa")
-# print(user)
-# auth.send_email_verification(user['idToken'])
-# user = auth.sign_in_with_email_and_password("nk@gmail.com", "aaaaaa")
-# p = auth.get_account_info(user["idToken"])
-# print(p['users'][0]['emailVerified'])
-# try:
-#     urls = storage.child("images/slide.jpg").get_url(user['idToken'])
-#     print(urls)
-# except:
-#     print("Ndak ada")
+def change_booking_status(email, now, status="Dibatalkan"):
+    db.child("users").child(encode(email)).child("order").child(now).update({"status": status})
+
+a = get_booking("nkangdra@gmail.com")
+print(a)

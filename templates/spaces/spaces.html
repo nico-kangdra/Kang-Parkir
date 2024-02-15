@@ -1,0 +1,37 @@
+{% extends 'base.html' %} {% block main %}
+<style>
+  .card {
+    width: 100%;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+  h2 {
+    text-align: center;
+    font-weight: bold;
+  }
+</style>
+<div class="container-fluid">
+  <h2>List Parkiran</h2>
+  <br />
+  <div class="row">
+    {% for space in spaces.values() %}
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <img src="{{url_for('static', filename='/spaces/'+space['image'])}}" class="card-img-top" alt="Foto {{space['name']}}" />
+        <div class="card-body">
+          <h5 class="card-title">{{space["name"]}}</h5>
+          <p class="card-text">Lokasi: <a href="{{space['link']}}" target="_blank">{{space["link"]}}</a></p>
+          <p class="card-text">Tipe: {{space["type"]|capitalize}}</p>
+          <a href="{{url_for('spaces_get', name=space['name'])}}" class="btn btn-primary">Pesan Sekarang</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock main%}

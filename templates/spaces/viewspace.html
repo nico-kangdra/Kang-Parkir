@@ -1,0 +1,194 @@
+{% extends 'base.html' %} {% block main %}
+<!-- Styles -->
+<style>
+  .img-container {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for better responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+    text-align: center; /* Center the content within the container */
+  }
+
+  .img-top {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 16/9;
+  }
+
+  span {
+    font-size: x-large;
+  }
+
+  #slot-count {
+    font-size: medium;
+  }
+  h2,
+  h5 {
+    font-weight: bold;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust the margin as needed */
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: auto; /* Allow the button to adjust its width based on content */
+    margin: 0 5px;
+  }
+
+  hr {
+    border: 1px solid black;
+  }
+
+  .btn-addmin {
+    width: 40px;
+    height: 40px;
+  }
+
+  #book {
+    width: 50px; /* Adjust the width as needed */
+    height: 40px; /* Set the height equal to the width */
+    text-align: end;
+    font-size: 14px; /* Adjust the font size as needed */
+    margin: 0 5px; /* Adjust the margin as needed */
+  }
+</style>
+
+<!-- Content -->
+<div class="img-container">
+  <img
+    class="d-block w-100 img-top"
+    src="{{ url_for('static', filename='/spaces/' + space['image']) }}"
+    alt="Foto {{ space['name'] }}"
+  />
+
+  <br /><br />
+  <h2>{{space['name']}}</h2>
+  <br />
+  <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
+  <p><span>📞</span> Phone Number: {{space['phone']}}</p>
+  <p>
+    <span>📍</span> Location:
+    <a target="_blank" href="{{space['link']}}">Click Here !!</a>
+  </p>
+  <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
+  {% if space['type'] == "mobil" %}
+  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+  {% elif space['type'] == "motor" %}
+  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
+  {% else %}
+  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
+  {% endif %}
+  <hr />
+
+  <h5>Booking Slot</h5>
+  <p>
+    Slot Tersedia:
+    <span id="slot-count">
+      {% if space['type'] == 'motor' %} {{space['slot'][today]['slotmotor']}} {%
+      else %} {{space['slot'][today]['slotcar']}} {% endif %}
+    </span>
+  </p>
+  <div class="button-container" id="container1">
+    <button class="btn btn-dark" id="todaydate"></button>
+  </div>
+  <div class="button-container" id="container2">
+    {% if space['type'] == 'mobil' %}
+    <button class="btn btn-primary">Mobil</button>
+    {% elif space['type'] == 'motor' %}
+    <button class="btn btn-primary">Motor</button>
+    {% else %}
+    <button class="btn btn-primary" onclick="switchs(this)">Mobil</button>
+    <button class="btn btn-secondary" onclick="switchs(this)">Motor</button>
+    {% endif %}
+  </div>
+  <div class="button-container" id="container3">
+    <button class="btn btn-danger btn-addmin" onclick="min()">-</button>
+    <input type="number" name="book" id="book" value="1" min="1" max="" />
+    <button class="btn btn-success btn-addmin" onclick="add()">+</button>
+  </div>
+  <br />
+  <form
+    action="/spaces/{{space['name']}}"
+    method="post"
+    onsubmit="return copies()"
+  >
+    {% if session.get('token') %}
+    <button type="submit" class="btn btn-primary">Booking</button>
+    {% else %}
+    <a href="/login" class="btn btn-warning">Login Dulu</a>
+    {% endif %}
+    <input
+      id="mynum"
+      name="mynum"
+      type="number"
+      value=""
+      style="display: none"
+    />
+    <input id="mine" name="mine" type="text" value="" style="display: none" />
+  </form>
+</div>
+
+<script>
+  var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  var dayOfWeek = new Date().toLocaleDateString('id-ID', options);
+
+  document.getElementById("todaydate").textContent = dayOfWeek;
+  
+      function copies() {
+            var bookValue = document.getElementById("book").value;
+            var spanValue = parseInt(document.getElementById("slot-count").textContent);
+
+            if (parseInt(bookValue) > spanValue) {
+                alert("Slot yang tersedia tidak cukup");
+                return false;
+            }
+
+            document.getElementById("mynum").value = bookValue;
+            var selectedType = document.querySelector("#container2 .btn-primary").textContent;
+          if (selectedType === "Mobil") {
+              document.getElementById("mine").value = "mobil";
+          } else if (selectedType === "Motor") {
+              document.getElementById("mine").value = "motor";
+          }
+        }
+
+      function add(){
+        var input = document.getElementById('book');
+        input.value = parseInt(input.value, 10) + 1;
+      }
+      function min(){
+        var input = document.getElementById('book');
+        if (input.value > 1) {
+          input.value = parseInt(input.value, 10) - 1;
+        }
+      }
+      {% if space['type'] == 'hybrid' %}
+      function switchs(button) {
+        var containerId = button.parentElement.id;
+        var buttons = document.querySelectorAll(`#${containerId} button`);
+
+        // Remove 'btn-primary' class from all buttons
+        buttons.forEach(function (btn) {
+          btn.classList.remove("btn-primary");
+          btn.classList.add("btn-secondary");
+        });
+
+        // Add 'btn-primary' class to the clicked button
+        button.classList.remove("btn-secondary");
+        button.classList.add("btn-primary");
+
+        var slotValue = 0;
+        if (button.textContent === "Mobil") slotValue = {{space['slot'][today]['slotcar']}};
+        else if (button.textContent === "Motor") slotValue = {{space['slot'][today]['slotmotor']}};
+
+        document.getElementById('slot-count').textContent = slotValue;
+      }
+      {% endif %}
+</script>
+
+{% endblock main %}

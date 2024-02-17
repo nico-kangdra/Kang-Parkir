@@ -81,6 +81,9 @@ def set_space(space_name, type, phone, image_filename, link, lat, long, open_hou
 def update_slot(space_name, date, data):
     db.child("spaces").child(space_name).child("slot").child(date).update(data)
 
+def remove_slot(space_name, date):
+    db.child("spaces").child(space_name).child("slot").child(date).remove()
+
 def get_space():
     spaces = db.child("spaces").get().val()
     return spaces
@@ -89,12 +92,15 @@ def get_space_name(name):
     space = db.child("spaces").child(name).get().val()
     return space
 
+def get_space_slot(name, dates):
+    return db.child("spaces").child(name).child("slot").child(dates).get().val()
+
 def delete_space(name):
     db.child("spaces").child(name).remove()
 
-def make_booking(session, now, timeout, space, method):
+def make_booking(session, now, dates, space, method):
     data = {
-        "timeout": timeout,
+        "dates": dates,
         "space_name": space,
         "method": method,
         "qty": session['booking'],
@@ -109,6 +115,3 @@ def get_booking(email):
 
 def change_booking_status(email, now, status="Dibatalkan"):
     db.child("users").child(encode(email)).child("order").child(now).update({"status": status})
-
-a = get_booking("nkangdra@gmail.com")
-print(a)

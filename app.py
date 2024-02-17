@@ -3,13 +3,14 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_slot, make_booking, get_booking, change_booking_status
+from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_slot, make_booking, get_booking, change_booking_status, remove_slot, get_space_slot
 import json
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.secret_key = json.load(open("config.json"))[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
-
+scheduler = BackgroundScheduler()
 
 @app.before_request
 def before_request():
@@ -94,14 +95,15 @@ def booking_get(name):
 def booking_post(name):
     methods = request.form["payment"]
     now = datetime.now().timestamp()
-    timeout = now + 3600
     space = get_space_name(name)
     today = datetime.now().strftime('%Y%m%d')
     if session['booktype'] == "mobil":
         update_slot(name, today, {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])})
     elif session['booktype'] == "motor":
         update_slot(name, today, {"slotmotor": int(space["slot"][today]["slotmotor"]) - int(session["booking"])})
-    make_booking(session, int(now), int(timeout), name, methods)
+    make_booking(session, int(now), today, name, methods)
+    session.pop("booking")
+    session.pop("booktype")
     return redirect(url_for("QRIS", name=int(now)))
 
 @app.get("/profile")
@@ -192,7 +194,6 @@ def register_post():
         flash(message)
         return redirect("/login")
 
-
 @app.get("/logout")
 def logout():
     session.clear()
@@ -210,9 +211,17 @@ def delete_spaces_get(name):
     delete_space(name)
     return redirect("/admin/spaces")
 
-@app.get("/cancel/<book>")
-def cancel(book):
-    change_booking_status(session['email'], book)
+@app.get("/cancel/<book>/<items>")
+def cancel(book, items):
+    booking = eval(items)
+    if booking['status'] == "Belum Dibayar":
+        change_booking_status(session['email'], book)
+        slot = get_space_slot(booking['space_name'], int(booking['dates']))
+        if booking['tipe'] == "mobil":
+            data = {"slotcar": slot['slotcar'] + int(booking['qty'])}
+        elif booking['tipe'] == "motor":
+            data = {"slotmotor": slot['slotmotor'] + int(booking['qty'])}
+        update_slot(booking['space_name'], booking['dates'], data)
     return redirect("/profile")
 
 @app.get("/paid/<book>")
@@ -220,5 +229,20 @@ def paid(book):
     change_booking_status(session['email'], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+def update_slot_day():
+    spaces = get_space()
+    tmwr = (datetime.now()+timedelta(days=1)).strftime('%Y%m%d')
+    for key, val in spaces.items():
+        if val['type'] == "mobil":
+            update_slot(key, tmwr, {"slotcar": val['car']})
+        elif val['type'] == "motor":
+            update_slot(key, tmwr, {"slotmotor": val['motor']})
+        else:
+            update_slot(key, tmwr, {"slotcar": val['car'], "slotmotor": val['motor']})
+        remove_slot(key, (datetime.now()-timedelta(days=5)).strftime('%Y%m%d'))
+
+
+scheduler.add_job(update_slot_day, trigger='cron', hour=0, minute=0)
 if __name__ == "__main__":
+    scheduler.start()
     app.run(debug=True, host="0.0.0.0", port=8080)

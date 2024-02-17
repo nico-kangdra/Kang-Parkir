@@ -65,7 +65,7 @@
       </p>
       <div class="d-flex justify-content-center">
         <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a>&nbsp;&nbsp;
-        <button onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key)}}`)" class="btn btn-danger">Batal</button>
+        <button onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key, items=val)}}`)" class="btn btn-danger">Batal</button>
       </div>
       {% elif val['status'] == "Sudah Dibayar" %}
       <p style="text-align: center" class="alert alert-success">

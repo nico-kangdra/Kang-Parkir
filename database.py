@@ -22,7 +22,8 @@ def register(email, password):
         return "Verfication link has been sent to your Email"
     except:
         return "There's an error occured"
-    
+
+
 def forgot(email):
     try:
         auth.send_password_reset_email(email)
@@ -30,13 +31,18 @@ def forgot(email):
     except:
         return "Email not Found"
 
+
 def login(email, password):
     try:
-        user = auth.sign_in_with_email_and_password(email,password)
+        user = auth.sign_in_with_email_and_password(email, password)
         user = auth.refresh(user["refreshToken"])
-        return (auth.get_account_info(user["idToken"])["users"][0]["emailVerified"], user["idToken"])
+        return (
+            auth.get_account_info(user["idToken"])["users"][0]["emailVerified"],
+            user["idToken"],
+        )
     except:
         return "Email or Password is wrong"
+
 
 def set_user(email, password, name):
     data = {
@@ -50,11 +56,27 @@ def set_user(email, password, name):
 def get_user(email):
     return db.child("users").child(encode(email)).get().val()
 
+
 def update_user(email, data: dict):
     db.child("users").child(encode(email)).update(data)
 
 
-def set_space(space_name, type, phone, image_filename, link, lat, long, open_hours, pay, date, slotcar="", slotmotor="", pricecar="", pricemotor=""):
+def set_space(
+    space_name,
+    type,
+    phone,
+    image_filename,
+    link,
+    lat,
+    long,
+    open_hours,
+    pay,
+    date,
+    slotcar="",
+    slotmotor="",
+    pricecar="",
+    pricemotor="",
+):
     data = {
         "name": space_name,
         "type": type,
@@ -75,43 +97,56 @@ def set_space(space_name, type, phone, image_filename, link, lat, long, open_hou
         "slotmotor": slotmotor,
     }
 
-    db.child("spaces").child(space_name).update(data) 
+    db.child("spaces").child(space_name).update(data)
     update_slot(space_name, date, dates)
+
 
 def update_slot(space_name, date, data):
     db.child("spaces").child(space_name).child("slot").child(date).update(data)
 
+
 def remove_slot(space_name, date):
     db.child("spaces").child(space_name).child("slot").child(date).remove()
+
 
 def get_space():
     spaces = db.child("spaces").get().val()
     return spaces
 
+
 def get_space_name(name):
     space = db.child("spaces").child(name).get().val()
     return space
 
+
 def get_space_slot(name, dates):
     return db.child("spaces").child(name).child("slot").child(dates).get().val()
 
+
 def delete_space(name):
     db.child("spaces").child(name).remove()
+
 
 def make_booking(session, now, dates, space, method):
     data = {
         "dates": dates,
         "space_name": space,
         "method": method,
-        "qty": session['booking'],
-        "tipe": session['booktype'],
-        "status": "Belum Dibayar"
+        "qty": session["booking"],
+        "tipe": session["booktype"],
+        "status": "Belum Dibayar",
     }
-    db.child("users").child(encode(session['email'])).child('order').child(now).set(data)
+    db.child("users").child(encode(session["email"])).child("order").child(now).set(
+        data
+    )
+
 
 def get_booking(email):
     book = db.child("users").child(encode(email)).child("order").get().val()
     return book
 
+
 def change_booking_status(email, now, status="Dibatalkan"):
-    db.child("users").child(encode(email)).child("order").child(now).update({"status": status})
+    db.child("users").child(encode(email)).child("order").child(now).update(
+        {"status": status}
+    )

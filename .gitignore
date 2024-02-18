@@ -9,6 +9,7 @@ __pycache__/
 # Config Files
 config.json
 service_account.json
+secret.py
 
 # Distribution / packaging
 .Python

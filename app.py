@@ -3,29 +3,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
-from database import (
-    login,
-    register,
-    set_user,
-    get_user,
-    update_user,
-    set_space,
-    get_space,
-    forgot,
-    get_space_name,
-    delete_space,
-    update_slot,
-    make_booking,
-    get_booking,
-    change_booking_status,
-    remove_slot,
-    get_space_slot,
-)
-import json
+from database import *
 import os
 
 app = Flask(__name__)
-app.secret_key = json.load(open("config.json"))[2]["secret"]
+app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 scheduler = BackgroundScheduler()
 
@@ -39,8 +21,7 @@ def before_request():
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
-    f = open("config.json")
-    api_key = json.load(f)[1]["api_key"]
+    api_key = X[1]["api_key"]
     spaces = get_space()
     return render_template(
         "index.html", api_key=api_key, spaces=spaces, images=images, nav="home"
@@ -224,8 +205,7 @@ def login_admin_get():
 def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
-    f = open("config.json")
-    acc = json.load(f)[1]
+    acc = X[1]
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin/spaces")

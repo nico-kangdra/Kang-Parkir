@@ -1,11 +1,8 @@
 import pyrebase
 from hashlib import sha256
-import json
+from secret import X
 
-f = open("config.json")
-config = json.load(f)[0]
-
-firebase = pyrebase.initialize_app(config)
+firebase = pyrebase.initialize_app(X[0])
 auth = firebase.auth()
 db = firebase.database()
 storage = firebase.storage()

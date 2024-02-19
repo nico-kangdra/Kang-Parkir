@@ -91,9 +91,9 @@ def courts_get():
 def spaces_get(name):
     space = get_space_name(name)
     today = datetime.now().strftime("%Y%m%d")
-    tmwr = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
 
     if space['slot'].get(today) is None:
+        tmwr = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
         if space['type'] == "mobil":
             update_slot(name, tmwr, {"slotcar": space["car"]})
         elif space["type"] == "motor":

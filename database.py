@@ -147,3 +147,9 @@ def change_booking_status(email, now, status="Dibatalkan"):
     db.child("users").child(encode(email)).child("order").child(now).update(
         {"status": status}
     )
+from datetime import datetime
+space = get_space_name("Green Sedayu Parkir")
+# today = datetime.now().strftime("%Y%m%d")
+# if space['slot'].get(today) is None:
+#     print(space['type'])
+print(space['car'])

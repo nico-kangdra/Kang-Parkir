@@ -1,5 +1,4 @@
 from flask import Flask, render_template, session, request, redirect, flash, url_for
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
@@ -9,8 +8,6 @@ import os
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
-scheduler = BackgroundScheduler()
-
 
 @app.before_request
 def before_request():
@@ -94,6 +91,17 @@ def courts_get():
 def spaces_get(name):
     space = get_space_name(name)
     today = datetime.now().strftime("%Y%m%d")
+    tmwr = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
+
+    if space['slot'].get(today) is None:
+        if space['type'] == "mobil":
+            update_slot(name, tmwr, {"slotcar": space["car"]})
+        elif space["type"] == "motor":
+            update_slot(name, tmwr, {"slotmotor": space["motor"]})
+        else:
+            update_slot(name, tmwr, {"slotcar": space["car"], "slotmotor": space["motor"]})
+        remove_slot(name, (datetime.now() - timedelta(days=5)).strftime("%Y%m%d"))
+        return redirect("/spaces")
     return render_template(
         "/spaces/viewspace.html", space=space, today=today, nav="spaces"
     )
@@ -272,22 +280,7 @@ def cancel(book, items):
 def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
+       
 
-
-def update_slot_day():
-    spaces = get_space()
-    tmwr = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
-    for key, val in spaces.items():
-        if val["type"] == "mobil":
-            update_slot(key, tmwr, {"slotcar": val["car"]})
-        elif val["type"] == "motor":
-            update_slot(key, tmwr, {"slotmotor": val["motor"]})
-        else:
-            update_slot(key, tmwr, {"slotcar": val["car"], "slotmotor": val["motor"]})
-        remove_slot(key, (datetime.now() - timedelta(days=5)).strftime("%Y%m%d"))
-
-
-scheduler.add_job(update_slot_day, trigger="cron", hour=0, minute=0)
 if __name__ == "__main__":
-    scheduler.start()
     app.run(debug=True, host="0.0.0.0", port=8080)

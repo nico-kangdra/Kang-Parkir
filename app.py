@@ -6,12 +6,13 @@ from apscheduler.triggers.cron import CronTrigger
 from datetime import timedelta, datetime
 from database import *
 import os
+from pytz import timezone
 
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 sched = BackgroundScheduler(daemon=True)
-
+WIB = timezone('Asia/Jakarta')
 
 @app.before_request
 def before_request():
@@ -55,9 +56,9 @@ def admin_court_post():
     hiddeninfo = request.form["info"]
     filename = name + ".png"
     if hiddeninfo == "edit":
-        date = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
+        date = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
     else:
-        date = datetime.now().strftime("%Y%m%d")
+        date = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
     set_space(
@@ -94,7 +95,7 @@ def courts_get():
 @app.get("/spaces/<name>")
 def spaces_get(name):
     space = get_space_name(name)
-    today = datetime.now().strftime("%Y%m%d")
+    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     return render_template(
         "/spaces/viewspace.html", space=space, today=today, nav="spaces"
     )
@@ -120,9 +121,9 @@ def booking_get(name):
 @app.post("/booking/<name>")
 def booking_post(name):
     methods = request.form["payment"]
-    now = datetime.now().timestamp()
+    now = datetime.now().astimezone(WIB).timestamp()
     space = get_space_name(name)
-    today = datetime.now().strftime("%Y%m%d")
+    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     if session["booktype"] == "mobil":
         update_slot(
             name,
@@ -278,7 +279,7 @@ def paid(book):
 def update_daily():
     spaces = get_space()
     for name, space in spaces.items():
-        tmwr = (datetime.now() + timedelta(days=1)).strftime("%Y%m%d")
+        tmwr = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
         if space["type"] == "mobil":
             update_slot(name, tmwr, {"slotcar": space["car"]})
         elif space["type"] == "motor":
@@ -287,12 +288,12 @@ def update_daily():
             update_slot(
                 name, tmwr, {"slotcar": space["car"], "slotmotor": space["motor"]}
             )
-        remove_slot(name, (datetime.now() - timedelta(days=5)).strftime("%Y%m%d"))
+        remove_slot(name, (datetime.now().astimezone(WIB) - timedelta(days=5)).strftime("%Y%m%d"))
         print(name + " Updated " + tmwr)
 
 
-sched.add_job(update_daily, CronTrigger(hour=12, minute=39))
+sched.add_job(update_daily, CronTrigger(hour=16, minute=59))
 sched.start()
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    app.run(debug=False, host="0.0.0.0", port=8080)

@@ -1,14 +1,17 @@
 from flask import Flask, render_template, session, request, redirect, flash, url_for
-import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import timedelta, datetime
-from database import login, register, set_user, get_user, update_user, set_space, get_space, forgot, get_space_name, delete_space, update_slot, make_booking, get_booking, change_booking_status
-import json
+from database import *
+import os
+from pytz import timezone
 
 app = Flask(__name__)
-app.secret_key = json.load(open("config.json"))[2]["secret"]
+app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
+sched = BackgroundScheduler(daemon=True)
+WIB = timezone("Asia/Jakarta")
 
 
 @app.before_request
@@ -20,10 +23,11 @@ def before_request():
 @app.get("/")
 def home_get():
     images = sorted(os.listdir(app.static_folder + "/carousel"))
-    f = open("config.json")
-    api_key = json.load(f)[1]["api_key"]
-    spaces  = get_space()
-    return render_template("index.html", api_key=api_key, spaces=spaces, images=images, nav="home")
+    api_key = X[1]["api_key"]
+    spaces = get_space()
+    return render_template(
+        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home"
+    )
 
 
 @app.get("/admin/spaces")
@@ -32,6 +36,7 @@ def admin_court():
         spaces = get_space()
         return render_template("admin/spaces.html", spaces=spaces, nav="admin")
     return redirect("/login")
+
 
 @app.post("/admin/spaces")
 def admin_court_post():
@@ -51,35 +56,57 @@ def admin_court_post():
     hiddeninfo = request.form["info"]
     filename = name + ".png"
     if hiddeninfo == "edit":
-        date = (datetime.now()+timedelta(days=1)).strftime('%Y%m%d')
+        date = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
     else:
-        date = datetime.now().strftime('%Y%m%d')
+        date = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
-    set_space(name, types, phone, filename, location, lat, long, hours, pay, date, slotcar, slotmotor, pricecar, pricemotor)
+    set_space(
+        name,
+        types,
+        phone,
+        filename,
+        location,
+        lat,
+        long,
+        hours,
+        pay,
+        date,
+        slotcar,
+        slotmotor,
+        pricecar,
+        pricemotor,
+    )
     return redirect("/admin/spaces")
+
 
 @app.get("/admin/spaces/<name>")
 def admin_spaces_get(name):
     space = get_space_name(name)
     return render_template("/admin/editspace.html", space=space, nav="admin")
 
+
 @app.get("/spaces")
 def courts_get():
     spaces = get_space()
-    return render_template("/spaces/spaces.html", spaces=spaces ,nav="spaces")
+    return render_template("/spaces/spaces.html", spaces=spaces, nav="spaces")
+
 
 @app.get("/spaces/<name>")
 def spaces_get(name):
     space = get_space_name(name)
-    today = datetime.now().strftime('%Y%m%d')
-    return render_template("/spaces/viewspace.html", space=space, today=today, nav="spaces")
+    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
+    return render_template(
+        "/spaces/viewspace.html", space=space, today=today, nav="spaces"
+    )
+
 
 @app.post("/spaces/<name>")
 def spaces_post(name):
     session["booking"] = request.form["mynum"]
     session["booktype"] = request.form["mine"]
     return redirect(url_for("booking_get", name=name))
+
 
 @app.get("/booking/<name>")
 def booking_get(name):
@@ -90,19 +117,33 @@ def booking_get(name):
     session.pop("booktype")
     return redirect("/spaces")
 
+
 @app.post("/booking/<name>")
 def booking_post(name):
     methods = request.form["payment"]
-    now = datetime.now().timestamp()
-    timeout = now + 3600
+    now = datetime.now().astimezone(WIB).timestamp()
     space = get_space_name(name)
-    today = datetime.now().strftime('%Y%m%d')
-    if session['booktype'] == "mobil":
-        update_slot(name, today, {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])})
-    elif session['booktype'] == "motor":
-        update_slot(name, today, {"slotmotor": int(space["slot"][today]["slotmotor"]) - int(session["booking"])})
-    make_booking(session, int(now), int(timeout), name, methods)
+    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
+    if session["booktype"] == "mobil":
+        update_slot(
+            name,
+            today,
+            {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])},
+        )
+    elif session["booktype"] == "motor":
+        update_slot(
+            name,
+            today,
+            {
+                "slotmotor": int(space["slot"][today]["slotmotor"])
+                - int(session["booking"])
+            },
+        )
+    make_booking(session, int(now), today, name, methods)
+    session.pop("booking")
+    session.pop("booktype")
     return redirect(url_for("QRIS", name=int(now)))
+
 
 @app.get("/profile")
 def profile_get():
@@ -116,7 +157,7 @@ def profile_get():
 @app.post("/profile")
 def profile_post():
     name = request.form["nameInput"]
-    data = {'name': name}
+    data = {"name": name}
     update_user(session["email"], data)
     return redirect("/profile")
 
@@ -127,16 +168,19 @@ def login_get():
         return redirect("/profile")
     return render_template("/login/login.html", nav="login")
 
+
 @app.get("/forgot")
 def forgot_get():
     return render_template("/login/forgot.html")
+
 
 @app.post("/forgot")
 def forgot_post():
     email = request.form["email"]
     res = forgot(email)
     flash(res)
-    return redirect('/forgot')
+    return redirect("/forgot")
+
 
 @app.post("/login")
 def login_post():
@@ -163,8 +207,7 @@ def login_admin_get():
 def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
-    f = open("config.json")
-    acc = json.load(f)[1]
+    acc = X[1]
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin/spaces")
@@ -198,27 +241,62 @@ def logout():
     session.clear()
     return redirect("/")
 
+
 @app.get("/QRIS/<name>")
 def QRIS(name):
     return render_template("QRIS.html", name=name)
 
+
 @app.get("/admin/spaces/delete/<name>")
 def delete_spaces_get(name):
-    image_path = os.path.join(app.static_folder, 'spaces', name+".png")
+    image_path = os.path.join(app.static_folder, "spaces", name + ".png")
     if os.path.exists(image_path):
         os.remove(image_path)
     delete_space(name)
     return redirect("/admin/spaces")
 
-@app.get("/cancel/<book>")
-def cancel(book):
-    change_booking_status(session['email'], book)
+
+@app.get("/cancel/<book>/<items>")
+def cancel(book, items):
+    booking = eval(items)
+    if booking["status"] == "Belum Dibayar":
+        change_booking_status(session["email"], book)
+        slot = get_space_slot(booking["space_name"], int(booking["dates"]))
+        if booking["tipe"] == "mobil":
+            data = {"slotcar": slot["slotcar"] + int(booking["qty"])}
+        elif booking["tipe"] == "motor":
+            data = {"slotmotor": slot["slotmotor"] + int(booking["qty"])}
+        update_slot(booking["space_name"], booking["dates"], data)
     return redirect("/profile")
+
 
 @app.get("/paid/<book>")
 def paid(book):
-    change_booking_status(session['email'], book, "Sudah Dibayar")
+    change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+
+def update_daily():
+    spaces = get_space()
+    for name, space in spaces.items():
+        tmwr = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
+        if space["type"] == "mobil":
+            update_slot(name, tmwr, {"slotcar": space["car"]})
+        elif space["type"] == "motor":
+            update_slot(name, tmwr, {"slotmotor": space["motor"]})
+        else:
+            update_slot(
+                name, tmwr, {"slotcar": space["car"], "slotmotor": space["motor"]}
+            )
+        remove_slot(
+            name,
+            (datetime.now().astimezone(WIB) - timedelta(days=5)).strftime("%Y%m%d"),
+        )
+        print(name + " Updated " + tmwr)
+
+
+sched.add_job(update_daily, 'interval', hours=12)
+sched.start()
+
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    app.run(debug=False, host="0.0.0.0", port=8080)

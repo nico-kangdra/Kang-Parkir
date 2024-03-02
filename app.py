@@ -26,7 +26,7 @@ def home_get():
     api_key = X[1]["api_key"]
     spaces = get_space()
     return render_template(
-        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home", tmt=datetime.now()
+        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home"
     )
 
 

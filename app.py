@@ -2,7 +2,6 @@ from flask import Flask, render_template, session, request, redirect, flash, url
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from datetime import timedelta, datetime
 from database import *
 import os
@@ -12,7 +11,8 @@ app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 sched = BackgroundScheduler(daemon=True)
-WIB = timezone('Asia/Jakarta')
+WIB = timezone("Asia/Jakarta")
+
 
 @app.before_request
 def before_request():
@@ -26,7 +26,7 @@ def home_get():
     api_key = X[1]["api_key"]
     spaces = get_space()
     return render_template(
-        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home"
+        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home", tmt=datetime.now()
     )
 
 
@@ -288,11 +288,14 @@ def update_daily():
             update_slot(
                 name, tmwr, {"slotcar": space["car"], "slotmotor": space["motor"]}
             )
-        remove_slot(name, (datetime.now().astimezone(WIB) - timedelta(days=5)).strftime("%Y%m%d"))
+        remove_slot(
+            name,
+            (datetime.now().astimezone(WIB) - timedelta(days=5)).strftime("%Y%m%d"),
+        )
         print(name + " Updated " + tmwr)
 
 
-sched.add_job(update_daily, CronTrigger(hour=16, minute=59))
+sched.add_job(update_daily, 'interval', hours=12)
 sched.start()
 
 if __name__ == "__main__":

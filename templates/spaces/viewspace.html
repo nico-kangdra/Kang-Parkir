@@ -70,10 +70,6 @@
   <br />
   <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
   <p><span>📞</span> Phone Number: {{space['phone']}}</p>
-  <p>
-    <span>📍</span> Location:
-    <a target="_blank" href="{{space['link']}}">Click Here !!</a>
-  </p>
   <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
   {% if space['type'] == "mobil" %}
   <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
@@ -83,6 +79,10 @@
   <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
   <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
   {% endif %}
+  <p>
+    <span>📍</span> Location:
+    <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
+  </p>
   <hr />
 
   <h5>Booking Slot</h5>

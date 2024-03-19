@@ -97,7 +97,7 @@
           }),
           new google.maps.InfoWindow({
             content:`<div>
-    <h5>{{x['name']}}</h5>
+    <h5>{{x['name']}} ({{x['type'].title()}})</h5>
     <a target='_blank' href={{x['link']}}>{{x['link']}}</a>
     <br><br>
     <a class='btn btn-primary' href={{url_for('spaces_get', name=x['name'])}}>View</a>
@@ -105,10 +105,6 @@
           })
           );
               {% endfor %}
-              // var data = {{ spaces | tojson | safe }};
-              // for (let x in data){
-              //   createMarkers(data[x], customMarker);
-              // }
             });
           } else {
             alert("Geolocation is not supported by this browser.");

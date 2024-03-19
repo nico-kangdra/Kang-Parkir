@@ -67,17 +67,19 @@
         <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a>&nbsp;&nbsp;
         <button onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key, items=val)}}`)" class="btn btn-danger">Batal</button>
       </div>
-      {% elif val['status'] == "Sudah Dibayar" %}
-      <p style="text-align: center" class="alert alert-success">
-        {{val['status']}}
-      </p>
-      <div class="d-flex justify-content-center">
-      <button onclick="confirms(`Apakah anda yakin sudah sampai?`,``)" class="btn btn-success">Saya Sudah Sampai</button>
-      </div>
       {% elif val['status'] == "Dibatalkan" %}
       <p style="text-align: center" class="alert alert-secondary">
         {{val['status']}}
       </p>
+      {% else %}
+      <p style="text-align: center" class="alert alert-success">
+        {{val['status']}}
+      </p>
+      {% if val['status'] == "Sudah Dibayar" %}
+      <div class="d-flex justify-content-center">
+      <button onclick="confirms(`Apakah anda yakin sudah sampai?`,`{{url_for('arrive', book=key)}}`)" class="btn btn-success">Saya Sudah Sampai</button>
+      </div>
+      {% endif %}
       {% endif %}
     </div>
   </div>

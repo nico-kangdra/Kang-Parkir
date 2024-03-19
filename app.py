@@ -273,6 +273,11 @@ def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+@app.get("/arrive/<book>")
+def arrive(book):
+    change_booking_status(session["email"], book, "Pesanan Selesai")
+    return redirect("/profile")
+    
 if __name__ == "__main__":
     import subprocess
     subprocess.Popen(["python", "schedule.py"])

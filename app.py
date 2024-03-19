@@ -1,7 +1,6 @@
 from flask import Flask, render_template, session, request, redirect, flash, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import timedelta, datetime
 from database import *
 import os
@@ -10,7 +9,6 @@ from pytz import timezone
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
-sched = BackgroundScheduler(daemon=True)
 WIB = timezone("Asia/Jakarta")
 
 
@@ -275,28 +273,8 @@ def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
-
-def update_daily():
-    spaces = get_space()
-    for name, space in spaces.items():
-        tmwr = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
-        if space["type"] == "mobil":
-            update_slot(name, tmwr, {"slotcar": space["car"]})
-        elif space["type"] == "motor":
-            update_slot(name, tmwr, {"slotmotor": space["motor"]})
-        else:
-            update_slot(
-                name, tmwr, {"slotcar": space["car"], "slotmotor": space["motor"]}
-            )
-        remove_slot(
-            name,
-            (datetime.now().astimezone(WIB) - timedelta(days=5)).strftime("%Y%m%d"),
-        )
-        print(name + " Updated " + tmwr)
-
-
-sched.add_job(update_daily, 'interval', hours=12)
-sched.start()
-
 if __name__ == "__main__":
+    import subprocess
+    subprocess.Popen(["python", "schedule.py"])
     app.run(debug=False, host="0.0.0.0", port=8080)
+

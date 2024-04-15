@@ -1,6 +1,4 @@
 from flask import Flask, render_template, session, request, redirect, flash, url_for
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from datetime import timedelta, datetime
 from database import *
 import os
@@ -8,7 +6,6 @@ from pytz import timezone
 
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
-limiter = Limiter(get_remote_address, app=app, default_limits=["10/second"])
 WIB = timezone("Asia/Jakarta")
 
 
@@ -279,7 +276,5 @@ def arrive(book):
     return redirect("/profile")
     
 if __name__ == "__main__":
-    import subprocess
-    subprocess.Popen(["python", "schedule.py"])
     app.run(debug=False, host="0.0.0.0", port=8080)
 

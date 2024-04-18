@@ -51,9 +51,9 @@ def admin_court_post():
     hiddeninfo = request.form["info"]
     filename = name + ".png"
     if hiddeninfo == "edit":
-        date = (datetime.now().astimezone(WIB) + timedelta(days=1)).strftime("%Y%m%d")
+        date = (datetime.now().astimezone(WIB) + timedelta(days=1))
     else:
-        date = datetime.now().astimezone(WIB).strftime("%Y%m%d")
+        date = datetime.now().astimezone(WIB)
     if image:
         image.save(app.static_folder + "/spaces/" + filename)
     set_space(

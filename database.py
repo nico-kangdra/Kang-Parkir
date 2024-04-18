@@ -1,6 +1,7 @@
 import pyrebase
 from hashlib import sha256
 from secret import X
+from datetime import timedelta
 
 firebase = pyrebase.initialize_app(X[0])
 auth = firebase.auth()
@@ -95,7 +96,8 @@ def set_space(
     }
 
     db.child("spaces").child(space_name).update(data)
-    update_slot(space_name, date, dates)
+    update_slot(space_name, date.strftime("%Y%m%d"), dates)
+    update_slot(space_name, (date + + timedelta(days=1)).strftime("%Y%m%d"), dates)
 
 
 def update_slot(space_name, date, data):

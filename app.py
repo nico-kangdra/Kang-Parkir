@@ -4,11 +4,14 @@ from database import *
 import os
 from pytz import timezone
 
+
+# Initialize flask app
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 WIB = timezone("Asia/Jakarta")
 
 
+# Set session to 2 weeks
 @app.before_request
 def before_request():
     session.permanent = True

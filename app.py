@@ -20,11 +20,10 @@ def before_request():
 
 @app.get("/")
 def home_get():
-    images = sorted(os.listdir(app.static_folder + "/carousel"))
     api_key = X[1]["api_key"]
     spaces = get_space()
     return render_template(
-        "index.html", api_key=api_key, spaces=spaces, images=images, nav="home"
+        "index.html", api_key=api_key, spaces=spaces, nav="home"
     )
 
 
@@ -58,12 +57,13 @@ def admin_court_post():
     else:
         date = datetime.now().astimezone(WIB)
     if image:
-        image.save(app.static_folder + "/spaces/" + filename)
+        storage.child("/spaces/"+filename).put(image)
+    image_url = storage.child("/spaces/"+filename).get_url(None)
     set_space(
         name,
         types,
         phone,
-        filename,
+        image_url,
         location,
         lat,
         long,
@@ -247,9 +247,6 @@ def QRIS(name):
 
 @app.get("/admin/spaces/delete/<name>")
 def delete_spaces_get(name):
-    image_path = os.path.join(app.static_folder, "spaces", name + ".png")
-    if os.path.exists(image_path):
-        os.remove(image_path)
     delete_space(name)
     return redirect("/admin/spaces")
 

@@ -22,7 +22,7 @@
     {% for space in spaces.values() %}
     <div class="col-md-4 mb-4">
       <div class="card">
-        <img src="{{url_for('static', filename='/spaces/'+space['image'])}}" class="card-img-top" alt="Foto {{space['name']}}" />
+        <img src="{{space['image']}}" class="card-img-top" alt="Foto {{space['name']}}" />
         <div class="card-body">
           <h5 class="card-title">{{space["name"]}}</h5>
           <p class="card-text">Lokasi: <a href="{{space['link']}}" target="_blank">{{space["link"]}}</a></p>

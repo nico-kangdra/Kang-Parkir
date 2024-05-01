@@ -24,6 +24,7 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
+    z-index: 9999;
   }
 
   #hiddeninfo{
@@ -41,7 +42,7 @@
       <div class="col-md-4 mb-4">
         <div class="card">
           <img
-            src="{{url_for('static', filename='/spaces/'+space['image'])}}"
+            src="{{space['image']}}"
             class="card-img-top"
             alt="Foto {{space['name']}}"
           />

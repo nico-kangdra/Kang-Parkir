@@ -149,6 +149,12 @@ def profile_get():
     booking = get_booking(session["email"])
     if booking:
         booking = dict(reversed(dict(booking).items()))
+        for key, val in booking.items():
+            before = datetime.strptime(val["dates"], "%Y%m%d")
+            after = datetime.now()
+            if before < after:
+                change_booking_status(session["email"], key)
+    booking = dict(reversed(dict(get_booking(session["email"])).items()))
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 

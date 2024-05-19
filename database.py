@@ -147,3 +147,13 @@ def change_booking_status(email, now, status="Dibatalkan"):
     db.child("users").child(encode(email)).child("order").child(now).update(
         {"status": status}
     )
+
+def set_admin(email, password, space):
+    db.child("admin").child(encode(email)).update({
+        "password": encode(password),
+        "space": space
+    })
+
+def get_login_admin(email):
+    info = db.child("admin").child(encode(email)).get().val()
+    return info

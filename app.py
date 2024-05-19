@@ -30,7 +30,7 @@ def home_get():
 
 @app.get("/admin/spaces")
 def admin_court():
-    if session.get("roles"):
+    if session.get("roles") == "superuser":
         spaces = get_space()
         return render_template("admin/spaces.html", spaces=spaces, nav="admin")
     return redirect("/login")
@@ -206,12 +206,25 @@ def login_admin_post():
     email = request.form["email"]
     password = request.form["password"]
     acc = X[1]
-    if acc["email"] == email and acc["password"] == password:
-        session["roles"] = "superuser"
-        return redirect("/admin/spaces")
-    flash("Email atau Password Salah")
+    if acc["email"] == email:
+        if acc["password"] == password:
+            session["roles"] = "superuser"
+            return redirect("/admin/spaces")
+        flash("Email atau Password Salah")
+    else:
+        info = get_login_admin(email)
+        if info and info["password"] == encode(password):
+            session["roles"] = "adminuser"
+            session["remail"] = email
+            return redirect("/admin/page")
+        flash("Email atau Password Salah")
     return redirect("/login/admin")
 
+@app.get("/admin/page")
+def page_get():
+    info = get_login_admin(session["remail"])
+    space = get_space_name(info["space"])
+    return render_template("/admin/page.html", info=info, space=space, nav="admin")
 
 @app.get("/register")
 def register_get():
@@ -273,8 +286,15 @@ def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+@app.get("/arrive/<book>")
+def arrive(book):
+    change_booking_status(session["email"], book, "Pesanan Selesai")
+    return redirect("/profile")
+    
+@app.route('/<path:invalid_path>')
+def invalid_route(invalid_path):
+    return redirect("/")
+
 if __name__ == "__main__":
-    import subprocess
-    subprocess.Popen(["python", "schedule.py"])
-    app.run(debug=False, host="0.0.0.0", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=8080)
 

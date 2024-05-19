@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block admin1 %}
+<a href="/logout" class="btn btn-danger">Logout</a>
+{% endblock admin1 %} {% block admin2 %}
+<a href="/logout" class="btn btn-danger">Logout</a>
+{% endblock admin2 %} {% block main %}
+<style>
+  .card {
+    width: 100%;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 16/9;
+  }
+
+  h2 {
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+<div class="container-fluid">
+    <div id="view-mode">
+    <h2>{{info["space"]}}</h2>
+
+    <br />
+    <div class="row">
+      {% for key, val in space.items() %}
+        {{key}} : {{val}} <br>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<script>
+  function confirmDelete() {
+    var result = window.confirm("Are you sure you want to delete this item?");
+
+    if (result) return true;
+    else return false;
+  }
+</script>
+{% endblock main%}

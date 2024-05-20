@@ -29,7 +29,7 @@ def home_get():
 
 @app.get("/admin/spaces")
 def admin_court():
-    if session.get("roles"):
+    if session.get("roles") == "superuser":
         spaces = get_space()
         return render_template("admin/spaces.html", spaces=spaces, nav="admin")
     return redirect("/login")
@@ -218,6 +218,11 @@ def login_admin_post():
     if acc["email"] == email and acc["password"] == password:
         session["roles"] = "superuser"
         return redirect("/admin/spaces")
+    info = get_login_admin(email)
+    if info and info["password"] == encode(password):
+        session["roles"] = "adminuser"
+        session["remail"] = email
+        return redirect("/admin/page")
     flash("Email atau Password Salah")
     return redirect("/login/admin")
 

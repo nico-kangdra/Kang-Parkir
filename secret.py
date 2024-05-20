@@ -1,20 +1,20 @@
 X = [
   {
-  "apiKey": "REPLACE WITH YOURS",
-  "authDomain": "REPLACE WITH YOURS",
-  "projectId": "REPLACE WITH YOURS",
-  "storageBucket": "REPLACE WITH YOURS",
-  "messagingSenderId": "REPLACE WITH YOURS",
-  "appId": "REPLACE WITH YOURS",
-  "measurementId": "REPLACE WITH YOURS",
-  "databaseURL": "REPLACE WITH YOURS"
+  "apiKey": "AIzaSyAI80E1N_YhgXpQar1x0bMMMWt8UWTF8h8",
+  "authDomain": "kangparkirs.firebaseapp.com",
+  "projectId": "kangparkirs",
+  "storageBucket": "kangparkirs.appspot.com",
+  "messagingSenderId": "440391560290",
+  "appId": "1:440391560290:web:988f69e6a0b8326363353b",
+  "measurementId": "G-954E2XKTVL",
+  "databaseURL": "https://kangparkirs-default-rtdb.asia-southeast1.firebasedatabase.app"
   },
   {
-    "email": "REPLACE WITH YOURS",
-    "password": "REPLACE WITH YOURS",
-    "api_key": "REPLACE WITH YOURS"
+    "email": "superuser@kangparkir.com",
+    "password": "SuperUser123",
+    "api_key": "AIzaSyACdMmH71RraQ_Nsb1YizG4RlCy14_-1DE"
   },
   {
-    "secret": "REPLACE WITH YOURS"
+    "secret": "AYOPARKIR!"
   }
 ]

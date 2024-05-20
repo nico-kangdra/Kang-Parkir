@@ -92,6 +92,7 @@ def set_space(
         "long": long,
         "lat": lat,
         "link": link,
+        "status": "closed",
         "hours": open_hours,
         "pricecar": pricecar,
         "pricemotor": pricemotor,
@@ -168,12 +169,29 @@ def change_booking_status(email, now, status="Dibatalkan"):
         {"status": status}
     )
 
-def set_admin(email, password, space):
-    db.child("admin").child(encode(email)).update({
-        "password": encode(password),
-        "space": space
+def change_spaces_status(name, status="open"):
+    db.child("spaces").child(name).update({"status": status})
+
+# set_admin("nkangdra@gmail.com","Password12","Parkiran Central Park")
+def get_login_admin(email):
+    return db.child("admin").child(email).get().val()
+
+def set_salary(name, dates, total):
+    db.child("spaces").child(name).child("salary").update({
+        dates : int(total)
     })
 
-def get_login_admin(email):
-    info = db.child("admin").child(encode(email)).get().val()
-    return info
+def set_admin_user(email, password, space):
+    db.child("admin").child(email).update({
+        "password" : password,
+        "spaces": space
+    })
+
+def get_salary(name):
+    return db.child("spaces").child(name).child("salary").get().val()
+
+def add_salary(name, dates, total):
+    salary = get_salary(name)
+    if salary:
+        total = salary["dates"] + int(total)
+    set_salary(name, dates, total)

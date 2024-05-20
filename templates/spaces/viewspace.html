@@ -85,6 +85,11 @@
   </p>
   <hr />
 
+  {% if space['status'] == 'closed'%}
+  <br>
+  <h5 style="color: red;">Parking Spaces is Closed</h5>
+
+  {% else %}
   <h5>Booking Slot</h5>
   <p>
     Slot Tersedia:
@@ -131,6 +136,7 @@
     />
     <input id="mine" name="mine" type="text" value="" style="display: none" />
   </form>
+  {% endif %}
 </div>
 
 <script>

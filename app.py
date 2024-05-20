@@ -1,7 +1,6 @@
 from flask import Flask, render_template, session, request, redirect, flash, url_for
 from datetime import timedelta, datetime
 from database import *
-import os
 from pytz import timezone
 
 
@@ -27,12 +26,22 @@ def home_get():
     )
 
 
+@app.get("/admin/page")
+def page_get():
+    if session.get('roles') == "adminuser":
+        dates = datetime.now().strftime("%Y%m%d")
+        info = get_login_admin(session["remail"])
+        space = get_space_name(info["space"])
+        return render_template("/admin/page.html", info=info, space=space, dates=dates, nav="admin")
+    return redirect("/login/admin")
+
+
 @app.get("/admin/spaces")
 def admin_court():
     if session.get("roles") == "superuser":
         spaces = get_space()
         return render_template("admin/spaces.html", spaces=spaces, nav="admin")
-    return redirect("/login")
+    return redirect("/login/admin")
 
 
 @app.post("/admin/spaces")
@@ -110,7 +119,11 @@ def spaces_post(name):
 def booking_get(name):
     if session.get("token") and session.get("booking") and session.get("booktype"):
         space = get_space_name(name)
-        return render_template("/booking/booking.html", space=space)
+        if session["booktype"] == "mobil":
+            total = int(space["pricecar"])*int(session["booking"])
+        elif session["booktype"] == "motor":
+            total = int(space["pricecar"])*int(session["booking"])
+        return render_template("/booking/booking.html", total=total, space=space)
     session.pop("booking")
     session.pop("booktype")
     return redirect("/spaces")
@@ -119,6 +132,7 @@ def booking_get(name):
 @app.post("/booking/<name>")
 def booking_post(name):
     methods = request.form["payment"]
+    total = request.form["total"]
     now = datetime.now().astimezone(WIB).timestamp()
     space = get_space_name(name)
     today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
@@ -138,6 +152,7 @@ def booking_post(name):
             },
         )
     make_booking(session, int(now), today, name, methods)
+    add_salary(name, today, total) ###################################################### THIS NEED MOVE PLACE
     session.pop("booking")
     session.pop("booktype")
     return redirect(url_for("QRIS", name=int(now)))
@@ -284,11 +299,17 @@ def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+@app.get("/change/<name>/<status>")
+def change(name, status):
+    change_spaces_status(name, status)
+    return redirect("/admin/page")
+
 @app.get("/arrive/<book>")
 def arrive(book):
     change_booking_status(session["email"], book, "Pesanan Selesai")
     return redirect("/profile")
-    
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)
 

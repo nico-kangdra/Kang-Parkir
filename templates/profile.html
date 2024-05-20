@@ -57,15 +57,22 @@
         {{val['space_name']}} | <span class="card-text">#{{key}}</span>
       </h5>
       <p class="card-text" style="text-align: center">
-        {{val['dates']}} | Tipe: {{val['tipe']|capitalize}} | Qty: {{val['qty']}}
+        {{val['dates']}} | Tipe: {{val['tipe']|capitalize}} | Qty:
+        {{val['qty']}}
       </p>
       {% if val['status'] == "Belum Dibayar" %}
       <p style="text-align: center" class="alert alert-danger">
         {{val['status']}}
       </p>
       <div class="d-flex justify-content-center">
-        <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a>&nbsp;&nbsp;
-        <button onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key, items=val)}}`)" class="btn btn-danger">Batal</button>
+        <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a
+        >&nbsp;&nbsp;
+        <button
+          onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key, items=val)}}`)"
+          class="btn btn-danger"
+        >
+          Batal
+        </button>
       </div>
       {% elif val['status'] == "Dibatalkan" %}
       <p style="text-align: center" class="alert alert-secondary">
@@ -77,10 +84,14 @@
       </p>
       {% if val['status'] == "Sudah Dibayar" %}
       <div class="d-flex justify-content-center">
-      <button onclick="confirms(`Apakah anda yakin sudah sampai?`,`{{url_for('arrive', book=key)}}`)" class="btn btn-success">Saya Sudah Sampai</button>
+        <button
+          onclick="confirms(`Apakah anda yakin sudah sampai?`,`{{url_for('arrive', book=key)}}`)"
+          class="btn btn-success"
+        >
+          Saya Sudah Sampai
+        </button>
       </div>
-      {% endif %}
-      {% endif %}
+      {% endif %} {% endif %}
     </div>
   </div>
   {% endfor %} {% else %}

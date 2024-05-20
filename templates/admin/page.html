@@ -47,44 +47,55 @@
   }
 </style>
 <div class="container-fluid">
-    <div id="view-mode">
-    <h2>{{info["space"]}}</h2>
+  <div id="view-mode">
+    <h2>{{space["name"]}}</h2>
 
     <br />
     <div class="img-container">
-  <img
-    class="d-block w-100 img-top"
-    src="{{space['image']}}"
-    alt="Foto {{ space['name'] }}"
-  />
+      <img
+        class="d-block w-100 img-top"
+        src="{{space['image']}}"
+        alt="Foto {{ space['name'] }}"
+      />
 
-  <br /><br />
-  <h2>{{space['name']}}</h2>
-  <br />
-  <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
-  <p><span>📞</span> Phone Number: {{space['phone']}}</p>
-  <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
-  {% if space['type'] == "mobil" %}
-  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
-  {% elif space['type'] == "motor" %}
-  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
-  {% else %}
-  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
-  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
-  {% endif %}
-  <p>
-    <span>📍</span> Location:
-    <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
-  </p><hr>
-  <h5><span>💵</span> Today Revenue <span>💵</span></h5><h5 style="color: green;">Rp.{{ "{:,.0f}".format(space['salary'][dates]) }}</h5><br>
-  <h5>Parking Spaces Status</h5><br>
-  <a class="btn {%if space['status'] == 'open'%} btn-success {%elif space['status'] == 'closed'%} btn-outline-success {% endif %}" href="{{url_for('change', name=space['name'], status='open')}}">OPEN</a>
-  <a class="btn {%if space['status'] == 'open'%} btn-outline-danger {%elif space['status'] == 'closed'%} btn-danger {% endif %}" href="{{url_for('change', name=space['name'], status='closed')}}">CLOSED</a>
-</div>
-    <div class="row">
-      {% for key, val in space.items() %}
-        {{key}} : {{val}} <br>
-      {% endfor %}
+      <br />
+      <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
+      <p><span>📞</span> Phone Number: {{space['phone']}}</p>
+      <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
+      {% if space['type'] == "mobil" %}
+      <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+      {% elif space['type'] == "motor" %}
+      <p>
+        <span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}
+      </p>
+      {% else %}
+      <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
+      <p>
+        <span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}
+      </p>
+      {% endif %}
+      <p>
+        <span>📍</span> Location:
+        <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
+      </p>
+      <hr />
+      <h5><span>💵</span> Today Revenue <span>💵</span></h5>
+      <h5 style="color: green">
+        Rp.{{ "{:,.0f}".format(space['salary'][dates]) }}
+      </h5>
+      <br />
+      <h5>Parking Spaces Status</h5>
+      <br />
+      <a
+        class="btn {%if space['status'] == 'open'%} btn-success {%elif space['status'] == 'closed'%} btn-outline-success {% endif %}"
+        href="{{url_for('change', name=space['name'], status='open')}}"
+        >OPEN</a
+      >
+      <a
+        class="btn {%if space['status'] == 'open'%} btn-outline-danger {%elif space['status'] == 'closed'%} btn-danger {% endif %}"
+        href="{{url_for('change', name=space['name'], status='closed')}}"
+        >CLOSED</a
+      >
     </div>
   </div>
 </div>

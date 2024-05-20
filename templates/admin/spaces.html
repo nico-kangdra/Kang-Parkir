@@ -27,7 +27,7 @@
     z-index: 9999;
   }
 
-  #hiddeninfo{
+  #hiddeninfo {
     display: none;
   }
 </style>
@@ -53,6 +53,22 @@
               <a href="{{space['link']}}" target="_blank">{{space["link"]}}</a>
             </p>
             <p class="card-text">Tipe: {{space["type"]|capitalize}}</p>
+            <button
+              class="btn btn-primary"
+              onclick="lestgo(`{{space['name']}}`)"
+            >
+              Set Owner
+            </button>
+            <form action="/setowner/{{ space['name'] }}" method="POST" hidden>
+              <input
+                type="text"
+                name="mails{{space['name']}}"
+                id="mails{{space['name']}}"
+              />
+              <button id="submitlah{{space['name']}}" type="submit">
+                Submit
+              </button>
+            </form>
             <a
               href="{{url_for('admin_spaces_get', name=space['name'])}}"
               class="btn btn-success"
@@ -79,16 +95,16 @@
       action="/admin/spaces"
       enctype="multipart/form-data"
     >
-    <div class="form-group">
-      <input
-        type="text"
-        class="form-control"
-        id="info"
-        name="info"
-        value="new"
-        style="display: none;"
-      />
-    </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="info"
+          name="info"
+          value="new"
+          style="display: none"
+        />
+      </div>
       <div class="form-group">
         <label for="name">Nama Parkiran:</label>
         <input
@@ -277,6 +293,17 @@
 
     if (result) return true;
     else return false;
+  }
+  function lestgo(ids) {
+    var email = prompt("Enter owner email: ");
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (emailPattern.test(email)) {
+      alert("Email: " + email + "\nPassword: Password12");
+      document.getElementById("mails" + ids).value = email;
+      document.getElementById("submitlah" + ids).click();
+    } else {
+      alert("Please enter a valid email address");
+    }
   }
 </script>
 {% endblock main%}

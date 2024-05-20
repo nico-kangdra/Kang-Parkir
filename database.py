@@ -107,7 +107,7 @@ def set_space(
 
     db.child("spaces").child(space_name).update(data)
     update_slot(space_name, date.strftime("%Y%m%d"), dates)
-    update_slot(space_name, (date + + timedelta(days=1)).strftime("%Y%m%d"), dates)
+    update_slot(space_name, (date + +timedelta(days=1)).strftime("%Y%m%d"), dates)
 
 
 # Update slot for spaces
@@ -169,26 +169,28 @@ def change_booking_status(email, now, status="Dibatalkan"):
         {"status": status}
     )
 
+
 def change_spaces_status(name, status="open"):
     db.child("spaces").child(name).update({"status": status})
 
+
 # set_admin("nkangdra@gmail.com","Password12","Parkiran Central Park")
-def get_login_admin(email):
-    return db.child("admin").child(email).get().val()
+def get_login_admin(email: str):
+    mail = email.replace(".", "-")
+    return db.child("admin").child(mail).get().val()
+
 
 def set_salary(name, dates, total):
-    db.child("spaces").child(name).child("salary").update({
-        dates : int(total)
-    })
+    db.child("spaces").child(name).child("salary").update({dates: int(total)})
+
 
 def set_admin_user(email, password, space):
-    db.child("admin").child(email).update({
-        "password" : password,
-        "spaces": space
-    })
+    db.child("admin").child(email).update({"password": password, "spaces": space})
+
 
 def get_salary(name):
     return db.child("spaces").child(name).child("salary").get().val()
+
 
 def add_salary(name, dates, total):
     salary = get_salary(name)

@@ -21,18 +21,19 @@ def before_request():
 def home_get():
     api_key = X[1]["api_key"]
     spaces = get_space()
-    return render_template(
-        "index.html", api_key=api_key, spaces=spaces, nav="home"
-    )
+    return render_template("index.html", api_key=api_key, spaces=spaces, nav="home")
 
 
 @app.get("/admin/page")
 def page_get():
-    if session.get('roles') == "adminuser":
+    if session.get("roles") == "adminuser":
         dates = datetime.now().strftime("%Y%m%d")
         info = get_login_admin(session["remail"])
-        space = get_space_name(info["space"])
-        return render_template("/admin/page.html", info=info, space=space, dates=dates, nav="admin")
+        space = get_space_name(info["spaces"])
+        print(space)
+        return render_template(
+            "/admin/page.html", info=info, space=space, dates=dates, nav="admin"
+        )
     return redirect("/login/admin")
 
 
@@ -62,12 +63,12 @@ def admin_court_post():
     hiddeninfo = request.form["info"]
     filename = name + ".png"
     if hiddeninfo == "edit":
-        date = (datetime.now().astimezone(WIB) + timedelta(days=1))
+        date = datetime.now().astimezone(WIB) + timedelta(days=1)
     else:
         date = datetime.now().astimezone(WIB)
     if image:
-        storage.child("/spaces/"+filename).put(image)
-    image_url = storage.child("/spaces/"+filename).get_url(None)
+        storage.child("/spaces/" + filename).put(image)
+    image_url = storage.child("/spaces/" + filename).get_url(None)
     set_space(
         name,
         types,
@@ -120,9 +121,9 @@ def booking_get(name):
     if session.get("token") and session.get("booking") and session.get("booktype"):
         space = get_space_name(name)
         if session["booktype"] == "mobil":
-            total = int(space["pricecar"])*int(session["booking"])
+            total = int(space["pricecar"]) * int(session["booking"])
         elif session["booktype"] == "motor":
-            total = int(space["pricecar"])*int(session["booking"])
+            total = int(space["pricecar"]) * int(session["booking"])
         return render_template("/booking/booking.html", total=total, space=space)
     session.pop("booking")
     session.pop("booktype")
@@ -152,7 +153,9 @@ def booking_post(name):
             },
         )
     make_booking(session, int(now), today, name, methods)
-    add_salary(name, today, total) ###################################################### THIS NEED MOVE PLACE
+    add_salary(
+        name, today, total
+    )  ###################################################### THIS NEED MOVE PLACE
     session.pop("booking")
     session.pop("booktype")
     return redirect(url_for("QRIS", name=int(now)))
@@ -299,10 +302,12 @@ def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
     return redirect(url_for("QRIS", name=book))
 
+
 @app.get("/change/<name>/<status>")
 def change(name, status):
     change_spaces_status(name, status)
     return redirect("/admin/page")
+
 
 @app.get("/arrive/<book>")
 def arrive(book):
@@ -310,6 +315,12 @@ def arrive(book):
     return redirect("/profile")
 
 
+@app.post("/setowner/<space>")
+def set_owner(space):
+    emails = request.form.get("mails" + space).replace(".", "-")
+    set_admin_user(emails, encode("Password12"), space)
+    return redirect("/admin/spaces")
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)
-

@@ -86,8 +86,8 @@
   <hr />
 
   {% if space['status'] == 'closed'%}
-  <br>
-  <h5 style="color: red;">Parking Spaces is Closed</h5>
+  <br />
+  <h5 style="color: red">Parking Spaces is Closed</h5>
 
   {% else %}
   <h5>Booking Slot</h5>
@@ -144,7 +144,7 @@
   var dayOfWeek = new Date().toLocaleDateString('id-ID', options);
 
   document.getElementById("todaydate").textContent = dayOfWeek;
-  
+
       function copies() {
             var bookValue = document.getElementById("book").value;
             var spanValue = parseInt(document.getElementById("slot-count").textContent);

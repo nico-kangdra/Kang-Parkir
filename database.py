@@ -159,7 +159,7 @@ def make_booking(session, now, dates, space, method):
 
 # Get booking information
 def get_booking(email):
-    book = db.child("users").child(encode(email)).child("order").get().val()
+    book = db.child("users").child(encode(email)).child("order").order_by_key().limit_to_last(20).get().val()
     return book
 
 

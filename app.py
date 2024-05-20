@@ -317,8 +317,10 @@ def arrive(book):
 
 @app.post("/setowner/<space>")
 def set_owner(space):
-    emails = request.form.get("mails" + space).replace(".", "-")
+    email = request.form.get("mails" + space)
+    emails = email.replace(".", "-")
     set_admin_user(emails, encode("Password12"), space)
+    db.child("spaces").child(space).update({"owner": email})
     return redirect("/admin/spaces")
 
 

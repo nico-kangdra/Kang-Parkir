@@ -174,7 +174,6 @@ def change_spaces_status(name, status="open"):
     db.child("spaces").child(name).update({"status": status})
 
 
-# set_admin("nkangdra@gmail.com","Password12","Parkiran Central Park")
 def get_login_admin(email: str):
     mail = email.replace(".", "-")
     return db.child("admin").child(mail).get().val()

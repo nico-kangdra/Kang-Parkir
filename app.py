@@ -150,11 +150,14 @@ def profile_get():
     if booking:
         booking = dict(reversed(dict(booking).items()))
         for key, val in booking.items():
-            before = datetime.strptime(val["dates"], "%Y%m%d")
-            after = datetime.now()
+            before = datetime.strptime(val["dates"], "%Y%m%d").date()
+            after = datetime.now().date()
             if before < after:
                 change_booking_status(session["email"], key)
     booking = dict(reversed(dict(get_booking(session["email"])).items()))
+    for key, val in booking.items():
+        times = datetime.strptime(val["dates"], "%Y%m%d").date()
+        booking[key]["dates"] = times.strftime("%d %B %Y")
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
@@ -282,5 +285,5 @@ def arrive(book):
     return redirect("/profile")
     
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=8080)
 

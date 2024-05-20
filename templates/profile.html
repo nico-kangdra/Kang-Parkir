@@ -57,7 +57,7 @@
         {{val['space_name']}} | <span class="card-text">#{{key}}</span>
       </h5>
       <p class="card-text" style="text-align: center">
-        Tipe: {{val['tipe']|capitalize}} | Qty: {{val['qty']}}
+        {{val['dates']}} | Tipe: {{val['tipe']|capitalize}} | Qty: {{val['qty']}}
       </p>
       {% if val['status'] == "Belum Dibayar" %}
       <p style="text-align: center" class="alert alert-danger">

@@ -30,6 +30,8 @@
   <h2>List Slot {{name}}</h2>
   <br />
   <div id="accordion">
+  <button class="btn btn-secondary" onclick="window.history.back()">Go Back</button>
+  <br><br>
     {% for key, val in spaces.items() %}
     <div class="card">
       <div class="card-header" id="heading{{ loop.index }}">

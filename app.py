@@ -2,6 +2,8 @@ from flask import Flask, render_template, session, request, redirect, flash, url
 from datetime import timedelta, datetime
 from database import *
 from pytz import timezone
+import os
+import pyqrcode
 
 
 # Initialize flask app
@@ -54,10 +56,7 @@ def admin_court_post():
     lat = request.form["latitude"]
     long = request.form["longitude"]
     hours = request.form["hours"]
-    slotcar = request.form.get("slotcar")
-    slotmotor = request.form.get("slotmotor")
-    pricecar = request.form.get("pricecar")
-    pricemotor = request.form.get("pricemotor")
+    price = request.form.get("price")
     pay = request.form["pay"]
     image = request.files["image"]
     hiddeninfo = request.form["info"]
@@ -80,10 +79,7 @@ def admin_court_post():
         hours,
         pay,
         date,
-        slotcar,
-        slotmotor,
-        pricecar,
-        pricemotor,
+        price
     )
     return redirect("/admin/spaces")
 
@@ -102,74 +98,46 @@ def courts_get():
 
 @app.get("/spaces/<name>")
 def spaces_get(name):
-    if session.get("times"):
-        session.pop("times")
     space = get_space_name(name)
-    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     return render_template(
-        "/spaces/viewspace.html", space=space, today=today, nav="spaces"
+        "/spaces/viewspace.html", space=space, nav="spaces"
     )
 
 
-@app.post("/spaces/<name>")
-def spaces_post(name):
-    session["booking"] = request.form["mynum"]
-    session["booktype"] = request.form["mine"]
-    if request.form.get('fromPicker'):
-        session["times"] = int(request.form["toPicker"]) - int(request.form["fromPicker"])
-    return redirect(url_for("booking_get", name=name))
+# @app.post("/spaces/<name>")
+# def spaces_post(name):
+#     session["booking"] = request.form["mynum"]
+#     session["booktype"] = request.form["mine"]
+#     if request.form.get('fromPicker'):
+#         session["times"] = int(request.form["toPicker"]) - int(request.form["fromPicker"])
+#     return redirect(url_for("booking_get", name=name))
 
 
 @app.get("/booking/<name>")
 def booking_get(name):
-    if session.get("token") and session.get("booking") and session.get("booktype"):
+    if session.get("token"):
         space = get_space_name(name)
-        total = 1
-        if session.get("times") and session["times"] >= 1:
-            total = int(session["times"])
-        if session["booktype"] == "mobil":
-            total = total * int(space["pricecar"]) * int(session["booking"])
-        elif session["booktype"] == "motor":
-            total = total * int(space["pricemotor"]) * int(session["booking"])
-        return render_template("/booking/booking.html", total=total, space=space)
-    session.pop("booking")
-    session.pop("booktype")
-    if session.get("times"):
-        session.pop("times")
+        slot_info = get_list_space(name)
+        today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
+        today_name = datetime.now().astimezone(WIB).strftime("%d %B %Y")
+        hasil = {}
+        if slot_info:
+            for key, val in slot_info.items():
+                if val['lantai'] not in hasil:
+                    hasil[val['lantai']] = []
+                hasil[val['lantai']].append(key)
+        return render_template("/booking/booking.html", today=today, today_name=today_name, space=space, slot=hasil)
     return redirect("/spaces")
 
 
 @app.post("/booking/<name>")
 def booking_post(name):
-    methods = request.form["payment"]
-    total = request.form["total"]
-    now = datetime.now().astimezone(WIB).timestamp()
-    space = get_space_name(name)
-    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
-    if session["booktype"] == "mobil":
-        update_slot(
-            name,
-            today,
-            {"slotcar": int(space["slot"][today]["slotcar"]) - int(session["booking"])},
-        )
-    elif session["booktype"] == "motor":
-        update_slot(
-            name,
-            today,
-            {
-                "slotmotor": int(space["slot"][today]["slotmotor"])
-                - int(session["booking"])
-            },
-        )
-    make_booking(session, int(now), today, name, methods, total, session["times"])
-    # add_salary(
-    #     name, today, total
-    # )  ###################################################### THIS NEED MOVE PLACE
-    session.pop("booking")
-    session.pop("booktype")
-    if session.get("times"):
-        session.pop("times")
-    return redirect(url_for("QRIS", name=int(now)))
+    session["slot"] = request.form["slots"]
+    session["book"] = request.form["books"]
+    if request.form.get('fromPicker'):
+        session["to"] = int(request.form["toPicker"]) 
+        session["from"] = int(request.form["fromPicker"])
+    return redirect("/payment/"+name)
 
 
 @app.get("/profile")
@@ -185,8 +153,15 @@ def profile_get():
                 change_booking_status(session["email"], key)
     booking = dict(reversed(dict(get_booking(session["email"])).items()))
     for key, val in booking.items():
+        space = val["space_name"]
+        slots = val["slots"].strip()
+        booking[key]["details"] = {}
+        for y in slots:
+            res = get_list_space_detail(space, y)
+            # booking[key]["details"][y] = dict(res)
         times = datetime.strptime(val["dates"], "%Y%m%d").date()
         booking[key]["name_date"] = times.strftime("%d %B %Y")
+        print(booking)
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
@@ -311,6 +286,10 @@ def cancel(book, items):
 @app.get("/paid/<book>")
 def paid(book):
     change_booking_status(session["email"], book, "Sudah Dibayar")
+    qr = pyqrcode.create(encode(session["email"])+"+"+book)
+    static_folder = os.path.join(app.root_path, 'static', 'QR')
+    file_path = os.path.join(static_folder, session['email']+book+".png")
+    qr.png(file_path, scale=7)
     return redirect(url_for("QRIS", name=book))
 
 
@@ -341,19 +320,21 @@ def manage_slot_get(space):
 
 @app.post("/admin/slot/<space>")
 def manage_slot_post(space):
-    kode = request.form["kode"]
-    startno = int(request.form["nomorawal"])
-    endno = int(request.form["nomorakhir"])
-    lt = request.form["lantai"]
-    comm = request.form["comment"]
-    isi = {
-        "comment": comm,
-        "lantai": lt
-    }
-    for x in range(startno, endno+1):
-        data = {kode+str(x): isi}
-        add_list_slot_space(space, data)
-    return redirect("/admin/slot/"+space)
+    if session.get('roles'):
+        kode = request.form["kode"]
+        startno = int(request.form["nomorawal"])
+        endno = int(request.form["nomorakhir"])
+        lt = request.form["lantai"]
+        comm = request.form["comment"]
+        isi = {
+            "comment": comm,
+            "lantai": lt
+        }
+        for x in range(startno, endno+1):
+            data = {kode+str(x): isi}
+            add_list_slot_space(space, data)
+        return redirect("/admin/slot/"+space)
+    return redirect("/login/admin")
 
 @app.post("/admin/slot/<space>/<slot>")
 def edit_slot_list(space, slot):
@@ -370,6 +351,25 @@ def edit_slot_list(space, slot):
 def delete_slot_list(space, slot):
     db.child("spaces").child(space).child("list-space").child(slot).remove()
     return redirect("/admin/slot/"+space)
+
+@app.get("/payment/<name>")
+def get_payment(name):
+    space = get_space_name(name)
+    session['harga'] = int(session["book"]) * int(space["price"])
+    return render_template("/booking/payment.html", space=space)
+
+@app.post("/payment/<tipe>/<name>")
+def post_payment(tipe, name):
+    method = request.form["payment"]
+    now = int(datetime.now().astimezone(WIB).timestamp())
+    print(now)
+    today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
+    make_booking(session, now, today, name, method, tipe)
+    if session.get('to'):
+        for x in range(session['from'], session['to']+1):
+            db.child("spaces").child(name).child("slot").child(today).child(session['slot']).update({x: session['email']})
+    return redirect("/QRIS/"+name)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

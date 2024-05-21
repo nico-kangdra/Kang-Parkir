@@ -79,10 +79,7 @@ def set_space(
     open_hours,
     pay,
     date,
-    slotcar="",
-    slotmotor="",
-    pricecar="",
-    pricemotor="",
+    price
 ):
     data = {
         "name": space_name,
@@ -93,23 +90,13 @@ def set_space(
         "lat": lat,
         "link": link,
         "hours": open_hours,
-        "pricecar": pricecar,
-        "pricemotor": pricemotor,
         "pay": pay,
-        "car": slotcar,
-        "motor": slotmotor,
         "list-space": {
             "EXAMPLE": {"comment": "GUIDE FOR USERS TO GET IN", "lantai": "G"}
         },
     }
-    dates = {
-        "slotcar": slotcar,
-        "slotmotor": slotmotor,
-    }
 
     db.child("spaces").child(space_name).update(data)
-    update_slot(space_name, date.strftime("%Y%m%d"), dates)
-    update_slot(space_name, (date + +timedelta(days=1)).strftime("%Y%m%d"), dates)
 
 
 # Update slot for spaces
@@ -145,20 +132,20 @@ def delete_space(name):
 
 
 # Create a booking
-def make_booking(session, now, dates, space, method, harga, jam):
+def make_booking(session, now, dates, space, method, tipe):
     data = {
         "dates": dates,
         "space_name": space,
         "method": method,
-        "qty": session["booking"],
-        "tipe": session["booktype"],
+        "qty": session["book"],
+        "tipe": tipe,
         "status": "Belum Dibayar",
-        "harga": harga,
-        "jam": jam,
+        "harga": session['harga'],
+        "slots": session['slot'].strip()
     }
-    db.child("users").child(encode(session["email"])).child("order").child(now).set(
-        data
-    )
+    if session.get('to'):
+        data['jam'] = session['to'] - session['from']
+    db.child("users").child(encode(session["email"])).child("order").child(now).set(data)
 
 
 # Get booking information
@@ -212,6 +199,9 @@ def add_salary(name, dates, total):
 
 def get_list_space(name):
     return db.child("spaces").child(name).child("list-space").get().val()
+
+def get_list_space_detail(name, lot):
+    return db.child("spaces").child(name).child("list-space").child(lot).get().val()
 
 
 def update_list_slot_space(name, slot, data):

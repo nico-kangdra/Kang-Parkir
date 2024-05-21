@@ -86,111 +86,32 @@
       </div>
       <div class="form-group">
         <select class="form-control" id="type" name="type" style="display: none;">
-          <option value="hybrid" {% if space['type'] == 'hybrid' %} selected {% endif %}>Hybrid</option>
           <option value="mobil" {% if space['type'] == 'mobil' %} selected {% endif %}>Mobil</option>
           <option value="motor" {% if space['type'] == 'motor' %} selected {% endif %}>Motor</option>
         </select>
       </div>
       <div class="form-row">
-      {% if space["type"] == 'mobil' %}
-        <div class="form-group col-md-7">
-          <label for="pricecar">Harga Mobil:</label>
+        <div class="form-group col-md-6">
+          <label for="price">Harga:</label>
           <input
             type="text"
             class="form-control"
-            id="pricecar"
-            name="pricecar"
-            value="{{space['pricecar']}}"
+            id="price"
+            name="price"
+            value="{{space['price']}}"
           />
         </div>
-        <div class="form-group col-md-5">
-          <label for="slotcar">Slot Mobil:</label>
-          <input
-            type="number"
-            class="form-control"
-            id="slotcar"
-            name="slotcar"
-            value="{{space['car']}}"
-            min=0
-          />
-        </div>
-        {% elif space["type"] == 'motor' %}
-        <div class="form-group col-md-7">
-          <label for="pricemotor">Harga Motor:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="pricemotor"
-            name="pricemotor"
-            value="{{space['pricemotor']}}"
-          />
-        </div>
-        <div class="form-group col-md-5">
-          <label for="slotmotor">Slot Motor:</label>
-          <input
-            type="number"
-            class="form-control"
-            id="slotmotor"
-            name="slotmotor"
-            value="{{space['motor']}}"
-            min=0
-          />
-        </div>
-        {% else %}
-          <div class="form-group col-md-4">
-            <label for="pricecar">Harga Mobil:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="pricecar"
-              name="pricecar"
-              value="{{space['pricecar']}}"
-            />
-          </div>
-          <div class="form-group col-md-2">
-            <label for="slotcar">Slot Mobil:</label>
-            <input
-              type="number"
-              class="form-control"
-              id="slotcar"
-              name="slotcar"
-              value="{{space['car']}}"
-              min=0
-            />
-          </div>
-          <div class="form-group col-md-4">
-            <label for="pricemotor">Harga Motor:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="pricemotor"
-              name="pricemotor"
-              value="{{space['pricemotor']}}"
-            />
-          </div>
-          <div class="form-group col-md-2">
-            <label for="slotmotor">Slot Motor:</label>
-            <input
-              type="number"
-              class="form-control"
-              id="slotmotor"
-              name="slotmotor"
-              value="{{space['motor']}}"
-              min=0
-            />
-          </div>
-      {% endif %}
-      </div>
-
-      <div class="form-row">
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
           <label for="pay">Tipe Pembayaran:</label>
           <select class="form-control" id="pay" name="pay">
             <option value="flat" {% if space["pay"] == 'flat' %} selected {% endif %}>Flat</option>
             <option value="perjam" {% if space["pay"] == 'perjam' %} selected {% endif %}>Per Jam</option>
           </select>
         </div>
-        <div class="form-group col-md-4">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
           <label for="latitude">Latitude:</label>
           <input
             type="text"
@@ -200,7 +121,7 @@
             value="{{space['lat']}}"
           />
         </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
           <label for="longitude">Longitude:</label>
           <input
             type="text"

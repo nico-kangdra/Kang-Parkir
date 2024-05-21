@@ -92,13 +92,15 @@ def set_space(
         "long": long,
         "lat": lat,
         "link": link,
-        "status": "closed",
         "hours": open_hours,
         "pricecar": pricecar,
         "pricemotor": pricemotor,
         "pay": pay,
         "car": slotcar,
         "motor": slotmotor,
+        "list-space": {
+            "EXAMPLE": {"comment": "GUIDE FOR USERS TO GET IN", "lantai": "G"}
+        },
     }
     dates = {
         "slotcar": slotcar,
@@ -143,7 +145,7 @@ def delete_space(name):
 
 
 # Create a booking
-def make_booking(session, now, dates, space, method):
+def make_booking(session, now, dates, space, method, harga, jam):
     data = {
         "dates": dates,
         "space_name": space,
@@ -151,6 +153,8 @@ def make_booking(session, now, dates, space, method):
         "qty": session["booking"],
         "tipe": session["booktype"],
         "status": "Belum Dibayar",
+        "harga": harga,
+        "jam": jam,
     }
     db.child("users").child(encode(session["email"])).child("order").child(now).set(
         data
@@ -159,7 +163,15 @@ def make_booking(session, now, dates, space, method):
 
 # Get booking information
 def get_booking(email):
-    book = db.child("users").child(encode(email)).child("order").order_by_key().limit_to_last(20).get().val()
+    book = (
+        db.child("users")
+        .child(encode(email))
+        .child("order")
+        .order_by_key()
+        .limit_to_last(20)
+        .get()
+        .val()
+    )
     return book
 
 
@@ -196,3 +208,15 @@ def add_salary(name, dates, total):
     if salary:
         total = salary["dates"] + int(total)
     set_salary(name, dates, total)
+
+
+def get_list_space(name):
+    return db.child("spaces").child(name).child("list-space").get().val()
+
+
+def update_list_slot_space(name, slot, data):
+    db.child("spaces").child(name).child("list-space").child(slot).update(data)
+
+
+def add_list_slot_space(name, data):
+    db.child("spaces").child(name).child("list-space").update(data)

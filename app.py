@@ -102,6 +102,8 @@ def courts_get():
 
 @app.get("/spaces/<name>")
 def spaces_get(name):
+    if session.get("times"):
+        session.pop("times")
     space = get_space_name(name)
     today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     return render_template(
@@ -113,6 +115,8 @@ def spaces_get(name):
 def spaces_post(name):
     session["booking"] = request.form["mynum"]
     session["booktype"] = request.form["mine"]
+    if request.form.get('fromPicker'):
+        session["times"] = int(request.form["toPicker"]) - int(request.form["fromPicker"])
     return redirect(url_for("booking_get", name=name))
 
 
@@ -120,13 +124,18 @@ def spaces_post(name):
 def booking_get(name):
     if session.get("token") and session.get("booking") and session.get("booktype"):
         space = get_space_name(name)
+        total = 1
+        if session.get("times") and session["times"] >= 1:
+            total = int(session["times"])
         if session["booktype"] == "mobil":
-            total = int(space["pricecar"]) * int(session["booking"])
+            total = total * int(space["pricecar"]) * int(session["booking"])
         elif session["booktype"] == "motor":
-            total = int(space["pricecar"]) * int(session["booking"])
+            total = total * int(space["pricemotor"]) * int(session["booking"])
         return render_template("/booking/booking.html", total=total, space=space)
     session.pop("booking")
     session.pop("booktype")
+    if session.get("times"):
+        session.pop("times")
     return redirect("/spaces")
 
 
@@ -152,12 +161,14 @@ def booking_post(name):
                 - int(session["booking"])
             },
         )
-    make_booking(session, int(now), today, name, methods)
-    add_salary(
-        name, today, total
-    )  ###################################################### THIS NEED MOVE PLACE
+    make_booking(session, int(now), today, name, methods, total, session["times"])
+    # add_salary(
+    #     name, today, total
+    # )  ###################################################### THIS NEED MOVE PLACE
     session.pop("booking")
     session.pop("booktype")
+    if session.get("times"):
+        session.pop("times")
     return redirect(url_for("QRIS", name=int(now)))
 
 
@@ -175,7 +186,7 @@ def profile_get():
     booking = dict(reversed(dict(get_booking(session["email"])).items()))
     for key, val in booking.items():
         times = datetime.strptime(val["dates"], "%Y%m%d").date()
-        booking[key]["dates"] = times.strftime("%d %B %Y")
+        booking[key]["name_date"] = times.strftime("%d %B %Y")
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
@@ -323,6 +334,42 @@ def set_owner(space):
     db.child("spaces").child(space).update({"owner": email})
     return redirect("/admin/spaces")
 
+@app.get("/admin/slot/<space>")
+def manage_slot_get(space):
+    spaces = get_list_space(space)
+    return render_template("/admin/slot.html", spaces=spaces, name=space, nav="admin")
+
+@app.post("/admin/slot/<space>")
+def manage_slot_post(space):
+    kode = request.form["kode"]
+    startno = int(request.form["nomorawal"])
+    endno = int(request.form["nomorakhir"])
+    lt = request.form["lantai"]
+    comm = request.form["comment"]
+    isi = {
+        "comment": comm,
+        "lantai": lt
+    }
+    for x in range(startno, endno+1):
+        data = {kode+str(x): isi}
+        add_list_slot_space(space, data)
+    return redirect("/admin/slot/"+space)
+
+@app.post("/admin/slot/<space>/<slot>")
+def edit_slot_list(space, slot):
+    comm = request.form["comment"+slot]
+    lt = request.form["lantai"+slot]
+    data = {
+        "comment": comm,
+        "lantai": lt
+    }
+    update_list_slot_space(space, slot, data)
+    return redirect("/admin/slot/"+space)
+
+@app.get("/admin/slot/<space>/<slot>")
+def delete_slot_list(space, slot):
+    db.child("spaces").child(space).child("list-space").child(slot).remove()
+    return redirect("/admin/slot/"+space)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8080)

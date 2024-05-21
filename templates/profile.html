@@ -57,10 +57,13 @@
         {{val['space_name']}} | <span class="card-text">#{{key}}</span>
       </h5>
       <p class="card-text" style="text-align: center">
-        {{val['dates']}} | Tipe: {{val['tipe']|capitalize}} | Qty:
-        {{val['qty']}}
+        {{val['name_date']}} | Tipe: {{val['tipe']|capitalize}} | Qty:
+        {{val['qty']}} | {{val['jam']}} jam
       </p>
       {% if val['status'] == "Belum Dibayar" %}
+      <p class="card-text" style="text-align: center; font-weight: bold;">
+        Total Payment: Rp.{{ "{:,.0f}".format(val['harga'] | int) }}
+      </p>
       <p style="text-align: center" class="alert alert-danger">
         {{val['status']}}
       </p>

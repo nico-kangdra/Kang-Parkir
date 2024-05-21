@@ -33,9 +33,10 @@
   <br /><br />
   <h2>{{space['name']}}</h2>
   <br />
-  <h4>Slot Dipesan: {{session['booking']}}</h4>
   <h4>Tipe: {{session['booktype']|capitalize}}</h4>
-  <h4>Total Harga: {{total}}</h4>
+  <h4>Slot Dipesan: {{session['booking']}}</h4>
+  <h4>Jam Dipesan: {% if session.get('times') %} {{session['times']}} jam {% else %} flat {% endif %}</h4>
+  <h4>Total Harga: Rp.{{ "{:,.0f}".format(total) }}</h4>
   <br /><br />
 
   <form action="/booking/{{space['name']}}" method="post">

@@ -1,6 +1,11 @@
 {% extends 'base.html' %} {% block main %}
 <!-- Styles -->
 <style>
+  select option:disabled {
+    background-color: gray;
+    color: white; /* Optionally change text color */
+  }
+
   .img-container {
     width: 100%;
     max-width: 800px; /* Set a maximum width for better responsiveness */
@@ -116,13 +121,25 @@
     <input type="number" name="book" id="book" value="1" min="1" max="" />
     <button class="btn btn-success btn-addmin" onclick="add()">+</button>
   </div>
-  <br />
   <form
     action="/spaces/{{space['name']}}"
     method="post"
     onsubmit="return copies()"
   >
     {% if session.get('token') %}
+    {% if space['pay'] == 'perjam' %}
+    <div class="button-container">
+      <div class="col-auto">
+        <label for="fromPicker" class="form-label">From:</label>
+        <select id="fromPicker" name="fromPicker" class="form-control"></select>
+      </div>
+      <div class="col-auto">
+        <label for="toPicker" class="form-label">To:</label>
+        <select id="toPicker" name="toPicker" class="form-control"></select>
+      </div>
+    </div>
+    {% endif %}
+    <br />
     <button type="submit" class="btn btn-primary">Pesan Sekarang</button>
     {% else %}
     <a href="/login" class="btn btn-warning">Login Dulu</a>
@@ -140,61 +157,96 @@
 </div>
 
 <script>
-  var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  var dayOfWeek = new Date().toLocaleDateString('id-ID', options);
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var dayOfWeek = new Date().toLocaleDateString('id-ID', options);
 
-  document.getElementById("todaydate").textContent = dayOfWeek;
+    document.getElementById("todaydate").textContent = dayOfWeek;
 
-      function copies() {
-            var bookValue = document.getElementById("book").value;
-            var spanValue = parseInt(document.getElementById("slot-count").textContent);
+        function copies() {
+              var bookValue = document.getElementById("book").value;
+              var spanValue = parseInt(document.getElementById("slot-count").textContent);
 
-            if (parseInt(bookValue) > spanValue) {
-                alert("Slot yang tersedia tidak cukup");
-                return false;
+              if (parseInt(bookValue) > spanValue) {
+                  alert("Slot yang tersedia tidak cukup");
+                  return false;
+              }
+
+              document.getElementById("mynum").value = bookValue;
+              var selectedType = document.querySelector("#container2 .btn-primary").textContent;
+            if (selectedType === "Mobil") {
+                document.getElementById("mine").value = "mobil";
+            } else if (selectedType === "Motor") {
+                document.getElementById("mine").value = "motor";
             }
+          }
 
-            document.getElementById("mynum").value = bookValue;
-            var selectedType = document.querySelector("#container2 .btn-primary").textContent;
-          if (selectedType === "Mobil") {
-              document.getElementById("mine").value = "mobil";
-          } else if (selectedType === "Motor") {
-              document.getElementById("mine").value = "motor";
+        function add(){
+          var input = document.getElementById('book');
+          input.value = parseInt(input.value, 10) + 1;
+        }
+        function min(){
+          var input = document.getElementById('book');
+          if (input.value > 1) {
+            input.value = parseInt(input.value, 10) - 1;
           }
         }
+        {% if space['type'] == 'hybrid' %}
+        function switchs(button) {
+          var containerId = button.parentElement.id;
+          var buttons = document.querySelectorAll(`#${containerId} button`);
 
-      function add(){
-        var input = document.getElementById('book');
-        input.value = parseInt(input.value, 10) + 1;
-      }
-      function min(){
-        var input = document.getElementById('book');
-        if (input.value > 1) {
-          input.value = parseInt(input.value, 10) - 1;
+          // Remove 'btn-primary' class from all buttons
+          buttons.forEach(function (btn) {
+            btn.classList.remove("btn-primary");
+            btn.classList.add("btn-secondary");
+          });
+
+          // Add 'btn-primary' class to the clicked button
+          button.classList.remove("btn-secondary");
+          button.classList.add("btn-primary");
+
+          var slotValue = 0;
+          if (button.textContent === "Mobil") slotValue = {{space['slot'][today]['slotcar']}};
+          else if (button.textContent === "Motor") slotValue = {{space['slot'][today]['slotmotor']}};
+
+          document.getElementById('slot-count').textContent = slotValue;
         }
+        {% endif %}
+
+        document.addEventListener("DOMContentLoaded", function() {
+    var fromPicker = document.getElementById("fromPicker");
+    var toPicker = document.getElementById("toPicker");
+    var timeRange = "{{space['hours']}}"; // Your time range string
+
+    // Extracting start and end hours from the time range string
+    var startHour = parseInt(timeRange.split(" - ")[0].split(":")[0]);
+    var endHour = parseInt(timeRange.split(" - ")[1].split(":")[0]);
+
+    var now = new Date();
+    var currentHour = now.getHours();
+
+    // Adding options for "From" time
+    for (var i = startHour; i <= endHour; i++) {
+      var option = document.createElement("option");
+      option.text = i < 10 ? "0" + i + ":00" : i + ":00"; // Adding leading zero for single digit hours
+      option.value = i;
+      if (i < currentHour) {
+        option.disabled = true;
       }
-      {% if space['type'] == 'hybrid' %}
-      function switchs(button) {
-        var containerId = button.parentElement.id;
-        var buttons = document.querySelectorAll(`#${containerId} button`);
+      fromPicker.add(option);
+    }
 
-        // Remove 'btn-primary' class from all buttons
-        buttons.forEach(function (btn) {
-          btn.classList.remove("btn-primary");
-          btn.classList.add("btn-secondary");
-        });
-
-        // Add 'btn-primary' class to the clicked button
-        button.classList.remove("btn-secondary");
-        button.classList.add("btn-primary");
-
-        var slotValue = 0;
-        if (button.textContent === "Mobil") slotValue = {{space['slot'][today]['slotcar']}};
-        else if (button.textContent === "Motor") slotValue = {{space['slot'][today]['slotmotor']}};
-
-        document.getElementById('slot-count').textContent = slotValue;
+    // Adding options for "To" time
+    for (var j = startHour; j <= endHour; j++) {
+      var option = document.createElement("option");
+      option.text = j < 10 ? "0" + j + ":00" : j + ":00"; // Adding leading zero for single digit hours
+      option.value = j;
+      if (j <= currentHour) {
+        option.disabled = true;
       }
-      {% endif %}
+      toPicker.add(option);
+    }
+  });
 </script>
 
 {% endblock main %}

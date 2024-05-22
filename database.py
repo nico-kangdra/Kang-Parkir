@@ -1,7 +1,6 @@
 import pyrebase
 from hashlib import sha256
 from secret import X
-from datetime import timedelta
 
 # Initialize the firebase connection
 firebase = pyrebase.initialize_app(X[0])

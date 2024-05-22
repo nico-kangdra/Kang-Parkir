@@ -112,7 +112,7 @@
     {% for key, val in slot.items() %}
     <div class="card" id="card-{{ key }}" style="display: none">
       <div class="card-body">
-        {% for x in val %}
+        {% for x in val | numerical_sort %}
         <button
           class='btn {% if space['pay'] == 'flat' %} {% if slot_space[x] != "none" %} btn-secondary {% else %} btn-outline-primary {% endif %} {% else %} btn-outline-primary {% endif %}'
           onclick="toggleButton(this)" {% if space['pay'] == 'flat' %} {% if slot_space[x] !="none" %} disabled {% endif %} {% endif %}>

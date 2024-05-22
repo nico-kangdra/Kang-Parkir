@@ -4,6 +4,7 @@ from database import *
 from pytz import timezone
 import os
 import pyqrcode
+import re
 
 
 # Initialize flask app
@@ -18,6 +19,11 @@ def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(weeks=2)
 
+@app.template_filter('numerical_sort')
+def numerical_sort(values):
+    def key_func(item):
+        return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', item)]
+    return sorted(values, key=key_func)
 
 @app.get("/")
 def home_get():

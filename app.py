@@ -32,7 +32,6 @@ def page_get():
         dates = datetime.now().strftime("%Y%m%d")
         info = get_login_admin(session["remail"])
         space = get_space_name(info["spaces"])
-        print(space)
         return render_template(
             "/admin/page.html", info=info, space=space, dates=dates, nav="admin"
         )
@@ -103,16 +102,6 @@ def spaces_get(name):
         "/spaces/viewspace.html", space=space, nav="spaces"
     )
 
-
-# @app.post("/spaces/<name>")
-# def spaces_post(name):
-#     session["booking"] = request.form["mynum"]
-#     session["booktype"] = request.form["mine"]
-#     if request.form.get('fromPicker'):
-#         session["times"] = int(request.form["toPicker"]) - int(request.form["fromPicker"])
-#     return redirect(url_for("booking_get", name=name))
-
-
 @app.get("/booking/<name>")
 def booking_get(name):
     if session.get("token"):
@@ -120,22 +109,23 @@ def booking_get(name):
         slot_info = get_list_space(name)
         today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
         today_name = datetime.now().astimezone(WIB).strftime("%d %B %Y")
+        slot_space = get_space_slot(name, today)
         hasil = {}
         if slot_info:
             for key, val in slot_info.items():
                 if val['lantai'] not in hasil:
                     hasil[val['lantai']] = []
                 hasil[val['lantai']].append(key)
-        return render_template("/booking/booking.html", today=today, today_name=today_name, space=space, slot=hasil)
+        return render_template("/booking/booking.html", today=today, today_name=today_name, space=space, slot_space=slot_space, slot=hasil)
     return redirect("/spaces")
 
 
 @app.post("/booking/<name>")
 def booking_post(name):
-    session["slot"] = request.form["slots"]
+    session["slot"] = request.form["slots"].strip()
     session["book"] = request.form["books"]
     if request.form.get('fromPicker'):
-        session["to"] = int(request.form["toPicker"]) 
+        session["to"] = int(request.form["toPicker"])
         session["from"] = int(request.form["fromPicker"])
     return redirect("/payment/"+name)
 
@@ -151,17 +141,26 @@ def profile_get():
             after = datetime.now().date()
             if before < after:
                 change_booking_status(session["email"], key)
-    booking = dict(reversed(dict(get_booking(session["email"])).items()))
-    for key, val in booking.items():
-        space = val["space_name"]
-        slots = val["slots"].strip()
-        booking[key]["details"] = {}
-        for y in slots:
-            res = get_list_space_detail(space, y)
-            # booking[key]["details"][y] = dict(res)
-        times = datetime.strptime(val["dates"], "%Y%m%d").date()
-        booking[key]["name_date"] = times.strftime("%d %B %Y")
-        print(booking)
+        booking = dict(reversed(dict(get_booking(session["email"])).items()))
+        for key, val in booking.items():
+            space = val["space_name"]
+            slots = val["slots"] #1A
+            booking[key]["details"] = {}
+            if val['jam'] != "flat":
+                res = get_list_space_detail(space, slots)
+                booking[key]["details"][slots] = dict(res)
+            else:
+                slt = slots.split(",")
+                if len(slt) > 1:
+                    for y in slots.split():
+                        res = get_list_space_detail(space, y)
+                        booking[key]["details"][y] = dict(res)
+                else:
+                    res = get_list_space_detail(space, slots)
+                    booking[key]["details"][slots] = dict(res)
+
+            times = datetime.strptime(val["dates"], "%Y%m%d").date()
+            booking[key]["name_date"] = times.strftime("%d %B %Y")
     return render_template("profile.html", data=data, booking=booking, nav="profile")
 
 
@@ -332,7 +331,7 @@ def manage_slot_post(space):
         }
         for x in range(startno, endno+1):
             data = {kode+str(x): isi}
-            add_list_slot_space(space, data)
+            add_list_slot_space(space, data) # PERLU DIUBAH
         return redirect("/admin/slot/"+space)
     return redirect("/login/admin")
 
@@ -362,12 +361,20 @@ def get_payment(name):
 def post_payment(tipe, name):
     method = request.form["payment"]
     now = int(datetime.now().astimezone(WIB).timestamp())
-    print(now)
     today = datetime.now().astimezone(WIB).strftime("%Y%m%d")
     make_booking(session, now, today, name, method, tipe)
     if session.get('to'):
         for x in range(session['from'], session['to']+1):
             db.child("spaces").child(name).child("slot").child(today).child(session['slot']).update({x: session['email']})
+    else:
+        slt = session['slot'].split(",")
+        for x in slt:
+            update_slot(name, today, {x.strip(): session['email']})
+    session.pop("to", None)
+    session.pop("from", None)
+    session.pop("book")
+    session.pop("slot")
+    session.pop("harga")
     return redirect("/QRIS/"+name)
 
 

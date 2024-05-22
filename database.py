@@ -145,6 +145,8 @@ def make_booking(session, now, dates, space, method, tipe):
     }
     if session.get('to'):
         data['jam'] = session['to'] - session['from']
+    else:
+        data['jam'] = "flat"
     db.child("users").child(encode(session["email"])).child("order").child(now).set(data)
 
 

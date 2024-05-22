@@ -2,8 +2,10 @@
 <style>
   .img-container {
     width: 100%;
-    max-width: 800px; /* Set a maximum width for better responsiveness */
-    margin: 0 auto; /* Center the container horizontally */
+    max-width: 800px;
+    /* Set a maximum width for better responsiveness */
+    margin: 0 auto;
+    /* Center the container horizontally */
   }
 
   .img-top {
@@ -17,53 +19,65 @@
   h4 {
     text-align: center;
   }
+
   h2 {
     font-weight: bold;
   }
+
   .form-group {
     margin: auto;
   }
+
   select option:disabled {
     background-color: gray;
-    color: white; /* Optionally change text color */
+    color: white;
+    /* Optionally change text color */
   }
+
   select option:disabled {
     background-color: gray;
-    color: white; /* Optionally change text color */
+    color: white;
+    /* Optionally change text color */
   }
 
   .img-container {
     width: 100%;
-    max-width: 800px; /* Set a maximum width for better responsiveness */
-    margin: 0 auto; /* Center the container horizontally */
-    text-align: center; /* Center the content within the container */
+    max-width: 800px;
+    /* Set a maximum width for better responsiveness */
+    margin: 0 auto;
+    /* Center the container horizontally */
+    text-align: center;
+    /* Center the content within the container */
   }
+
   .btn-addmin {
     width: 40px;
     height: 40px;
   }
 
   #book {
-    width: 50px; /* Adjust the width as needed */
-    height: 40px; /* Set the height equal to the width */
+    width: 50px;
+    /* Adjust the width as needed */
+    height: 40px;
+    /* Set the height equal to the width */
     text-align: end;
-    font-size: 14px; /* Adjust the font size as needed */
-    margin: 0 5px; /* Adjust the margin as needed */
+    font-size: 14px;
+    /* Adjust the font size as needed */
+    margin: 0 5px;
+    /* Adjust the margin as needed */
   }
+
   .btn-secondary,
   .btn-primary {
-    width: auto; /* Allow the button to adjust its width based on content */
+    width: auto;
+    /* Allow the button to adjust its width based on content */
     margin: 0 5px;
   }
 </style>
 <div class="img-container">
   <h2>{{space['name']}}</h2>
   <br />
-  <img
-    src="{{space['image']}}"
-    class="card-img-top"
-    alt="Foto {{space['name']}}"
-  />
+  <img src="{{space['image']}}" class="card-img-top" alt="Foto {{space['name']}}" />
   <br /><br />
   <div class="form-group col-md-6">
     <h5>Booking Slot</h5>
@@ -81,15 +95,7 @@
       <button class="btn btn-success btn-addmin" onclick="add()">+</button>
     </div>
     {% else %}
-    <input
-      type="number"
-      name="book"
-      id="book"
-      value="1"
-      min="1"
-      max=""
-      hidden
-    />
+    <input type="number" name="book" id="book" value="1" min="1" max="" hidden />
     {% endif %}
   </div>
   <br />
@@ -107,7 +113,9 @@
     <div class="card" id="card-{{ key }}" style="display: none">
       <div class="card-body">
         {% for x in val %}
-        <button class="btn btn-outline-primary" onclick="toggleButton(this)">
+        <button
+          class='btn {% if space['pay'] == 'flat' %} {% if slot_space[x] != "none" %} btn-secondary {% else %} btn-outline-primary {% endif %} {% else %} btn-outline-primary {% endif %}'
+          onclick="toggleButton(this)" {% if space['pay'] == 'flat' %} {% if slot_space[x] !="none" %} disabled {% endif %} {% endif %}>
           {{x}}
         </button>
         {% endfor %}
@@ -118,31 +126,21 @@
   <br />
   <form action="/booking/{{space['name']}}" method="post">
     {% if space['pay'] == 'perjam' %}
-    <div class="form-group col-md-5">
-      <div>
-        <label for="fromPicker" class="form-label">From:</label>
-        <select id="fromPicker" name="fromPicker" class="form-control"></select>
-      </div>
-      <div>
-        <label for="toPicker" class="form-label">To:</label>
-        <select id="toPicker" name="toPicker" class="form-control"></select>
-      </div>
+    <div class="form-group col-md-5" id="divtime" hidden>
+      <label for="fromPicker" class="form-label">From:</label>
+      <select id="fromPicker" name="fromPicker" class="form-control"></select>
+      <label for="toPicker" class="form-label">To:</label>
+      <select id="toPicker" name="toPicker" class="form-control"></select>
     </div>
     {% endif %}
-    <input
-      id="mynum"
-      name="mynum"
-      type="number"
-      value=""
-      style="display: none"
-    />
+    <input id="mynum" name="mynum" type="number" value="" style="display: none" />
     <input id="mine" name="mine" type="text" value="" style="display: none" />
     <div class="form-group col-md-6">
       <input type="text" name="slots" id="slots" value="" hidden />
       <input type="text" name="books" id="books" value="" hidden />
       <br />
       <div class="d-flex justify-content-center">
-        <button class="btn btn-success" type="submit">Lanjut Bayar</button>
+        <button class="btn btn-success" type="submit" id="lnjtbyr" disabled hidden>Lanjut Bayar</button>
       </div>
     </div>
   </form>
@@ -154,36 +152,79 @@
 
   function toggleButton(button) {
     if (selectedButtons.includes(button)) {
-      button.classList.remove("btn-primary");
-      button.classList.add("btn-outline-primary");
-      var index = selectedButtons.indexOf(button);
-      if (index > -1) {
-        selectedButtons.splice(index, 1);
-      }
-      // Remove the slot value from the selected slots
-      var btnval = button.innerHTML;
-      var slotval = document.getElementById("slots").value;
-      var newValue = slotval
-        .split(",")
-        .filter((slot) => slot.trim() !== btnval.trim())
-        .join(",");
-      document.getElementById("slots").value = newValue;
-    } else {
-      var waklo = document.getElementById("book").value;
-      if (selectedButtons.length < waklo) {
-        button.classList.remove("btn-outline-primary");
-        button.classList.add("btn-primary");
-        selectedButtons.push(button);
+        button.classList.remove("btn-primary");
+        button.classList.add("btn-outline-primary");
+        var index = selectedButtons.indexOf(button);
+        if (index > -1) {
+            selectedButtons.splice(index, 1);
+        }
+        // Remove the slot value from the selected slots
         var btnval = button.innerHTML;
-        var slotval = document.getElementById("slots");
-        var currentVal = slotval.value;
-        var newValue = currentVal ? currentVal + "," + btnval : btnval;
+        var slotval = document.getElementById("slots").value;
+        var newValue = slotval
+            .split(",")
+            .filter((slot) => slot.trim() !== btnval.trim())
+            .join(",");
         document.getElementById("slots").value = newValue;
-      } else {
-        alert("You can only select " + waklo + " buttons.");
+        document.getElementById("lnjtbyr").setAttribute("hidden", "")
+        document.getElementById("lnjtbyr").disabled = true;
+        document.getElementById("divtime").setAttribute("hidden", "")
+
+    } else {
+        var waklo = document.getElementById("book").value;
+        if (selectedButtons.length < waklo) {
+            button.classList.remove("btn-outline-primary");
+            button.classList.add("btn-primary");
+            selectedButtons.push(button);
+            var btnval = button.innerHTML;
+            var slotval = document.getElementById("slots");
+            var currentVal = slotval.value;
+            var newValue = currentVal ? currentVal + "," + btnval : btnval;
+            document.getElementById("slots").value = newValue;
+            document.getElementById("lnjtbyr").removeAttribute("hidden");
+            document.getElementById("lnjtbyr").disabled = false;
+            document.getElementById("divtime").removeAttribute("hidden");
+            updateTimeRange(document.getElementById("slots").value.trim());
+        } else {
+            alert("You can only select " + waklo + " buttons.");
+        }
+    }
+}
+
+function updateTimeRange(slot_id) {
+    var selectedSlots = document.getElementById("slots").value.trim();
+    var fromPicker = document.getElementById("fromPicker");
+    var toPicker = document.getElementById("toPicker");
+    
+    // Clear existing options
+    fromPicker.innerHTML = "";
+    toPicker.innerHTML = "";
+    var space_slot = {{slot_space|tojson}}[slot_id];
+    var currentHour = new Date().getHours();
+
+    for (let x in space_slot){
+      if (space_slot[x] != "no"){
+        var option = document.createElement("option");
+          option.text = x < 10 ? "0" + x + ":00" : x + ":00";
+          option.value = x;
+          if (x < currentHour) option.disabled = true;
+          if (space_slot[x] != "none") option.disabled = true;
+          fromPicker.add(option);
+      }
+    }
+
+    for (let x in space_slot){
+      if (space_slot[x] != "no"){
+        var option = document.createElement("option");
+          option.text = x < 10 ? "0" + x + ":00" : x + ":00";
+          option.value = x;
+          if (x <= currentHour) option.disabled = true;
+          if (space_slot[x] != "none") option.disabled = true;
+          toPicker.add(option);
       }
     }
   }
+
 
   document
     .getElementById("floor-select")
@@ -208,15 +249,6 @@
     selectedButtons = [];
   }
 
-  var options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  var dayOfWeek = new Date().toLocaleDateString("id-ID", options);
-
-  document.getElementById("todaydate").textContent = dayOfWeek;
 
   function add() {
     var input = document.getElementById("book");
@@ -230,40 +262,5 @@
       document.getElementById("books").value = input.value;
     }
   }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    var fromPicker = document.getElementById("fromPicker");
-    var toPicker = document.getElementById("toPicker");
-    var timeRange = "{{space['hours']}}"; // Your time range string
-
-    // Extracting start and end hours from the time range string
-    var startHour = parseInt(timeRange.split(" - ")[0].split(":")[0]);
-    var endHour = parseInt(timeRange.split(" - ")[1].split(":")[0]);
-
-    var now = new Date();
-    var currentHour = now.getHours();
-
-    // Adding options for "From" time
-    for (var i = startHour; i <= endHour; i++) {
-      var option = document.createElement("option");
-      option.text = i < 10 ? "0" + i + ":00" : i + ":00"; // Adding leading zero for single digit hours
-      option.value = i;
-      if (i < currentHour) {
-        option.disabled = true;
-      }
-      fromPicker.add(option);
-    }
-
-    // Adding options for "To" time
-    for (var j = startHour; j <= endHour; j++) {
-      var option = document.createElement("option");
-      option.text = j < 10 ? "0" + j + ":00" : j + ":00"; // Adding leading zero for single digit hours
-      option.value = j;
-      if (j <= currentHour) {
-        option.disabled = true;
-      }
-      toPicker.add(option);
-    }
-  });
 </script>
 {% endblock main %}

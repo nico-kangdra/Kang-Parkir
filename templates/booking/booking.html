@@ -200,6 +200,7 @@ function updateTimeRange(slot_id) {
     fromPicker.innerHTML = "";
     toPicker.innerHTML = "";
     var space_slot = {{slot_space|tojson}}[slot_id];
+    console.log(space_slot);
     var currentHour = new Date().getHours();
 
     for (let x in space_slot){

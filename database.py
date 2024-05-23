@@ -78,7 +78,7 @@ def set_space(
     open_hours,
     pay,
     date,
-    price
+    price,
 ):
     data = {
         "name": space_name,
@@ -90,9 +90,7 @@ def set_space(
         "link": link,
         "hours": open_hours,
         "pay": pay,
-        "list-space": {
-            "EXAMPLE": {"comment": "GUIDE FOR USERS TO GET IN", "lantai": "G"}
-        },
+        "price": price,
     }
 
     db.child("spaces").child(space_name).update(data)
@@ -139,14 +137,19 @@ def make_booking(session, now, dates, space, method, tipe):
         "qty": session["book"],
         "tipe": tipe,
         "status": "Belum Dibayar",
-        "harga": session['harga'],
-        "slots": session['slot'].strip()
+        "slots": session["slot"].strip(),
     }
-    if session.get('to'):
-        data['jam'] = session['to'] - session['from']
+    if session.get("to"):
+        data["jam"] = session["to"] - session["from"]
+        data["from"] = session["from"]
+        data["to"] = session["to"]
+        data["harga"] = session["harga"] * (session["to"] - session["from"])
     else:
-        data['jam'] = "flat"
-    db.child("users").child(encode(session["email"])).child("order").child(now).set(data)
+        data["jam"] = "flat"
+        data["harga"] = session["harga"] * session["book"]
+    db.child("users").child(encode(session["email"])).child("order").child(now).set(
+        data
+    )
 
 
 # Get booking information
@@ -200,6 +203,7 @@ def add_salary(name, dates, total):
 
 def get_list_space(name):
     return db.child("spaces").child(name).child("list-space").get().val()
+
 
 def get_list_space_detail(name, lot):
     return db.child("spaces").child(name).child("list-space").child(lot).get().val()

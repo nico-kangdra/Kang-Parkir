@@ -146,36 +146,4 @@
       <a class="btn btn-secondary" href="/admin/spaces">Cancel</a>
     </form>
 </div>
-<script>
-  document.addEventListener("DOMContentLoaded", function (){
-    document.getElementById("type").addEventListener("change", function () {
-      // Mendapatkan nilai yang dipilih pada elemen seleksi tipe kendaraan
-      var selectedType = this.value;
-
-      // Mendapatkan elemen harga motor dan slot motor
-      var pricemotorInput = document.getElementById("pricemotor");
-      var slotmotorInput = document.getElementById("slotmotor");
-      var pricecarInput = document.getElementById("pricecar");
-      var slotcarInput = document.getElementById("slotcar");
-
-      // Menentukan apakah harus menonaktifkan atau mengaktifkan elemen harga motor dan slot motor
-      if (selectedType === "mobil") {
-        pricemotorInput.disabled = true;
-        slotmotorInput.disabled = true;
-        pricecarInput.disabled = false;
-        slotcarInput.disabled = false;
-      } else if (selectedType === "motor") {
-        pricemotorInput.disabled = false;
-        slotmotorInput.disabled = false;
-        pricecarInput.disabled = true;
-        slotcarInput.disabled = true;
-      } else {
-        pricemotorInput.disabled = false;
-        slotmotorInput.disabled = false;
-        pricecarInput.disabled = false;
-        slotcarInput.disabled = false;
-      }
-    });
-  });
-</script>
 {% endblock main %}

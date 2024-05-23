@@ -6,12 +6,10 @@ import os
 import pyqrcode
 import re
 
-
 # Initialize flask app
 app = Flask(__name__)
 app.secret_key = X[2]["secret"]
 WIB = timezone("Asia/Jakarta")
-
 
 # Set session to 2 weeks
 @app.before_request
@@ -61,7 +59,7 @@ def admin_court_post():
     lat = request.form["latitude"]
     long = request.form["longitude"]
     hours = request.form["hours"]
-    price = request.form.get("price")
+    price = request.form['price']
     pay = request.form["pay"]
     image = request.files["image"]
     hiddeninfo = request.form["info"]
@@ -154,16 +152,16 @@ def profile_get():
             booking[key]["details"] = {}
             if val['jam'] != "flat":
                 res = get_list_space_detail(space, slots)
-                booking[key]["details"][slots] = dict(res)
+                booking[key]["details"][slots] = res
             else:
                 slt = slots.split(",")
                 if len(slt) > 1:
-                    for y in slots.split():
+                    for y in slt:
                         res = get_list_space_detail(space, y)
                         booking[key]["details"][y] = dict(res)
                 else:
                     res = get_list_space_detail(space, slots)
-                    booking[key]["details"][slots] = dict(res)
+                    booking[key]["details"][slots] = res
 
             times = datetime.strptime(val["dates"], "%Y%m%d").date()
             booking[key]["name_date"] = times.strftime("%d %B %Y")
@@ -274,17 +272,9 @@ def delete_spaces_get(name):
     return redirect("/admin/spaces")
 
 
-@app.get("/cancel/<book>/<items>")
-def cancel(book, items):
-    booking = eval(items)
-    if booking["status"] == "Belum Dibayar":
-        change_booking_status(session["email"], book)
-        slot = get_space_slot(booking["space_name"], int(booking["dates"]))
-        if booking["tipe"] == "mobil":
-            data = {"slotcar": slot["slotcar"] + int(booking["qty"])}
-        elif booking["tipe"] == "motor":
-            data = {"slotmotor": slot["slotmotor"] + int(booking["qty"])}
-        update_slot(booking["space_name"], booking["dates"], data)
+@app.get("/cancel/<space>/<book>")
+def cancel(space, book):
+    cancelation(space, book)
     return redirect("/profile")
 
 
@@ -335,9 +325,28 @@ def manage_slot_post(space):
             "comment": comm,
             "lantai": lt
         }
+        
+        space_info = get_space_name(space)
+        tdy = (datetime.now().astimezone(WIB)).strftime("%Y%m%d")
+        start_time, end_time = space_info['hours'].split(" - ")
+        start_hour = int(start_time[:2])
+        end_hour = int(end_time[:2])
+
         for x in range(startno, endno+1):
-            data = {kode+str(x): isi}
-            add_list_slot_space(space, data) # PERLU DIUBAH
+            datas = {kode+str(x): isi}
+
+            if space_info['pay'] == 'perjam':
+                data = {kode+str(x): {}}
+                for time in range(start_hour, end_hour+1):
+                    data[kode+str(x)][time] = "none"
+                data[kode+str(x)]["full"] = "no"
+
+            elif space_info['pay'] == 'flat':
+                data = {kode+str(x): "none"}
+
+            update_slot(space, tdy, data)
+            add_list_slot_space(space, datas)
+        
         return redirect("/admin/slot/"+space)
     return redirect("/login/admin")
 
@@ -382,6 +391,21 @@ def post_payment(tipe, name):
     session.pop("slot")
     session.pop("harga")
     return redirect("/QRIS/"+name)
+
+def cancelation(space, book):
+    booking = db.child("users").child(encode(session['email'])).child("order").child(book).get().val()
+    if booking["status"] == "Belum Dibayar":
+        change_booking_status(session["email"], book)
+        if booking.get('from'):
+            for x in range(booking['from'], booking['to']+1):
+                db.child("spaces").child(space).child("slot").child(booking['dates']).child(booking['slots']).update({x: "none"})
+        else:
+            if booking['qty'] > 1:
+                slt = booking['slot'].split(",")
+                for x in slt:
+                    db.child("spaces").child(space).child("slot").child(booking['dates']).update({x: "none"})
+            else:
+                db.child("spaces").child(space).child("slot").child(booking['dates']).update({booking['slots']: "none"})
 
 
 if __name__ == "__main__":

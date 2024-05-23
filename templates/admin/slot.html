@@ -32,6 +32,7 @@
   <div id="accordion">
   <button class="btn btn-secondary" onclick="window.history.back()">Go Back</button>
   <br><br>
+  {% if spaces %}
     {% for key, val in spaces.items() %}
     <div class="card">
       <div class="card-header" id="heading{{ loop.index }}">
@@ -95,6 +96,7 @@
       </div>
     </div>
     {% endfor %}
+  {% endif %}
   </div>
 </div>
 

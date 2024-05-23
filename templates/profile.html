@@ -71,7 +71,7 @@
         <a href='{{url_for("QRIS", name=key)}}' class="btn btn-success">Bayar</a
         >&nbsp;&nbsp;
         <button
-          onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', book=key, items=val)}}`)"
+          onclick="confirms(`Apakah anda akan yakin untuk dibatalkan?`,`{{url_for('cancel', space=val['space_name'] , book=key)}}`)"
           class="btn btn-danger"
         >
           Batal

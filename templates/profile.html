@@ -128,22 +128,19 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div
-              class="modal-body d-flex justify-content-center align-items-center"
-            >
+            <div class="modal-body d-flex justify-content-center align-items-center">
               <div>
-                <h5 style="text-align: center">Slot: {{val['slots']}}</h5>
-                <p style="text-align: center">
-                  {% for k1, v1 in val['details'].items() %} Slot {{k1}}: Lantai
-                  {{v1['lantai']}}, {{v1['comment']}} <br />
-                  {% endfor %}
-                </p>
-                <img
-                  src="{{url_for('static', filename='QR/'+session['email']+key+'.png')}}"
-                  alt="QR CODE"
-                />
+                  <h5 style="text-align: center">Slot: {{val['slots']}}</h5>
+                  <p style="text-align: center">
+                      {% for k1, v1 in val['details'].items() %}
+                          Slot {{k1}}: Lantai {{v1['lantai']}}, {{v1['comment']}} <br />
+                      {% endfor %}
+                  </p>
+                  <div class="text-center">
+                      <img src="{{val['image']}}" alt="QR CODE" />
+                  </div>
               </div>
-            </div>
+          </div>          
             <div class="modal-footer"> 
               <button
                 type="button"

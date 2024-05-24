@@ -2,7 +2,7 @@ from flask import Flask, render_template, session, request, redirect, flash, url
 from datetime import timedelta, datetime
 from database import *
 from pytz import timezone
-import os
+import io
 import pyqrcode
 import re
 
@@ -70,6 +70,7 @@ def admin_court_post():
         date = datetime.now().astimezone(WIB)
     if image:
         storage.child("/spaces/" + filename).put(image)
+        
     image_url = storage.child("/spaces/" + filename).get_url(None)
     set_space(
         name,
@@ -280,11 +281,13 @@ def cancel(space, book):
 
 @app.get("/paid/<book>")
 def paid(book):
-    change_booking_status(session["email"], book, "Sudah Dibayar")
+    qr_io = io.BytesIO()
     qr = pyqrcode.create(encode(session["email"])+"+"+book)
-    static_folder = os.path.join(app.root_path, 'static', 'QR')
-    file_path = os.path.join(static_folder, session['email']+book+".png")
-    qr.png(file_path, scale=7)
+    qr.png(qr_io, scale=5)
+    storage.child("/QR/"+session['email']+book+".png").put(qr_io.getvalue())
+    qr_url = storage.child("/QR/"+session['email']+book+".png").get_url(None)
+    change_booking_status(session["email"], book, "Sudah Dibayar")
+    db.child("users").child(encode(session["email"])).child("order").child(book).update({'image': qr_url})
     return redirect(url_for("QRIS", name=book))
 
 

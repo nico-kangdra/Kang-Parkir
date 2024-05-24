@@ -8,7 +8,6 @@ auth = firebase.auth()
 db = firebase.database()
 storage = firebase.storage()
 
-
 # To encode a text
 def encode(var):
     return sha256(var.encode("utf-8")).hexdigest()

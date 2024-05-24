@@ -392,6 +392,28 @@ def post_payment(tipe, name):
     session.pop("harga")
     return redirect("/QRIS/"+name)
 
+@app.get("/admin/change/<email>")
+def get_change_pass(email):
+    if session.get('roles') == "adminuser":
+        return render_template("/admin/forgot.html", email=email)
+    return redirect("/login/admin")
+
+@app.post("/admin/change/<email>")
+def post_change_pass(email):
+    if session.get('roles') == "adminuser":
+        oldpw = request.form["oldpw"]
+        newpw = request.form["newpw"]
+        conpw = request.form["conpw"]
+        emails = email.replace(".", "-")
+        pw = db.child("admin").child(emails).get().val()
+        if pw["password"] == encode(oldpw) and newpw == conpw:
+            db.child("admin").child(emails).update({"password": encode(newpw)})
+        else:
+            flash("Password didn't matched")
+        return redirect("/admin/page")
+    return redirect("/login/admin")
+
+
 def cancelation(space, book):
     booking = db.child("users").child(encode(session['email'])).child("order").child(book).get().val()
     if booking["status"] == "Belum Dibayar":

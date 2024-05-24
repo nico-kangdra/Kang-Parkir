@@ -66,13 +66,6 @@
     margin: 0 5px;
     /* Adjust the margin as needed */
   }
-
-  .btn-secondary,
-  .btn-primary {
-    width: auto;
-    /* Allow the button to adjust its width based on content */
-    margin: 0 5px;
-  }
 </style>
 <div class="img-container">
   <h2>{{space['name']}}</h2>
@@ -105,7 +98,7 @@
     <select class="form-control" name="floor" id="floor-select">
       <option disabled selected>Pilih Lantai</option>
       {% for key, val in slot.items() %}
-      <option value="{{key}}">Lantai {{key}}</option>
+      <option value="{{key}}">{{key}}</option>
       {% endfor %}
     </select>
 
@@ -180,6 +173,7 @@
             var slotval = document.getElementById("slots");
             var currentVal = slotval.value;
             var newValue = currentVal ? currentVal + "," + btnval : btnval;
+            alert("PARKING LOCATION : "+{{slot_info|tojson}}[button.innerHTML.trim()]['comment'])
             document.getElementById("slots").value = newValue;
             document.getElementById("lnjtbyr").removeAttribute("hidden");
             document.getElementById("lnjtbyr").disabled = false;

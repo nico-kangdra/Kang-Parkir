@@ -91,6 +91,7 @@ def set_space(
         "hours": open_hours,
         "pay": pay,
         "price": price,
+        "status": "open"
     }
 
     db.child("spaces").child(space_name).update(data)

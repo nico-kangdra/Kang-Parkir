@@ -83,7 +83,7 @@
       <hr />
       <h5><span>💵</span> Today Revenue <span>💵</span></h5>
       <h5 style="color: green">
-        {% if space['salary'][dates] %}
+        {% if space.get('salary') %}
         Rp.{{ "{:,.0f}".format(space['salary'][dates]) }}
         {% else %}
         Rp.0
@@ -92,12 +92,12 @@
       <br />
       <h5>Parking Spaces Status</h5>
       <a
-        class="btn {%if space['status'] == 'open'%} btn-success {%elif space['status'] == 'closed'%} btn-outline-success {% endif %}"
+        class="btn {%if space['status'] == 'open'%} btn-success {%else%} btn-outline-success {% endif %}"
         href="{{url_for('change', name=space['name'], status='open')}}"
         >OPEN</a
       >
       <a
-        class="btn {%if space['status'] == 'open'%} btn-outline-danger {%elif space['status'] == 'closed'%} btn-danger {% endif %}"
+        class="btn {%if space['status'] == 'closed'%} btn-danger {%else%} btn-outline-danger {% endif %}"
         href="{{url_for('change', name=space['name'], status='closed')}}"
         >CLOSED</a
       >

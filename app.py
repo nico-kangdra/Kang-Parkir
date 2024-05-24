@@ -120,7 +120,7 @@ def booking_get(name):
                 if val['lantai'] not in hasil:
                     hasil[val['lantai']] = []
                 hasil[val['lantai']].append(key)
-        return render_template("/booking/booking.html", today=today, today_name=today_name, space=space, slot_space=slot_space, slot=hasil)
+        return render_template("/booking/booking.html", today=today, today_name=today_name, space=space, slot_space=slot_space, slot_info=slot_info, slot=hasil)
     return redirect("/spaces")
 
 

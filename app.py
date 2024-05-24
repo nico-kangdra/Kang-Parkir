@@ -158,8 +158,8 @@ def profile_get():
                 slt = slots.split(",")
                 if len(slt) > 1:
                     for y in slt:
-                        res = get_list_space_detail(space, y)
-                        booking[key]["details"][y] = dict(res)
+                        res = get_list_space_detail(space, y.strip())
+                        booking[key]["details"][y.strip()] = dict(res)
                 else:
                     res = get_list_space_detail(space, slots)
                     booking[key]["details"][slots] = res
@@ -425,10 +425,10 @@ def cancelation(space, book):
             for x in range(booking['from'], booking['to']+1):
                 db.child("spaces").child(space).child("slot").child(booking['dates']).child(booking['slots']).update({x: "none"})
         else:
-            if booking['qty'] > 1:
-                slt = booking['slot'].split(",")
+            if int(booking['qty']) > 1:
+                slt = booking['slots'].split(",")
                 for x in slt:
-                    db.child("spaces").child(space).child("slot").child(booking['dates']).update({x: "none"})
+                    db.child("spaces").child(space).child("slot").child(booking['dates']).update({x.strip(): "none"})
             else:
                 db.child("spaces").child(space).child("slot").child(booking['dates']).update({booking['slots']: "none"})
 

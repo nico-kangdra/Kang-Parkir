@@ -143,10 +143,10 @@ def make_booking(session, now, dates, space, method, tipe):
         data["jam"] = session["to"] - session["from"]
         data["from"] = session["from"]
         data["to"] = session["to"]
-        data["harga"] = session["harga"] * (session["to"] - session["from"])
+        data["harga"] = int(session["harga"]) * int(session["to"] - session["from"])
     else:
         data["jam"] = "flat"
-        data["harga"] = session["harga"] * session["book"]
+        data["harga"] = int(session["harga"]) * int(session["book"])
     db.child("users").child(encode(session["email"])).child("order").child(now).set(
         data
     )

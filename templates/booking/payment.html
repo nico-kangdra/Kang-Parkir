@@ -44,7 +44,7 @@
     Jam Dipesan: {% if session.get('to') %} {{session['to'] - session['from']}} jam {% else
     %} flat {% endif %}
   </h4>
-  <h4>Total Harga: Rp.{{ "{:,.0f}".format(session['harga'] * (session['to'] - session['from'])) }}</h4>
+  <h4>Total Harga: Rp.{% if session.get('to') %} {{ "{:,.0f}".format(session['harga'] * (session['to'] - session['from'])) }} {% else %} {{ "{:,.0f}".format(session['harga']) }} {% endif %} </h4>
   <br /><br />
 
   <form action="/payment/{{space['type']}}/{{space['name']}}" method="post">

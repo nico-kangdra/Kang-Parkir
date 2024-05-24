@@ -27,6 +27,9 @@
   h5 {
     font-weight: bold;
   }
+  hr {
+    border: 1px solid black;
+  }
 </style>
 
 <!-- Content -->
@@ -43,25 +46,20 @@
   <p><span>⏰</span> Opening Hours: {{ space['hours'] }}</p>
   <p><span>📞</span> Phone Number: {{space['phone']}}</p>
   <p><span>🚗</span> Type: {{space['type']|capitalize}}</p>
-  {% if space['type'] == "mobil" %}
-  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
-  {% elif space['type'] == "motor" %}
-  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
-  {% else %}
-  <p><span>💵</span> Harga Mobil: {{space['pricecar']}} {{space['pay']}}</p>
-  <p><span>💵</span> Harga Motor: {{space['pricemotor']}} {{space['pay']}}</p>
-  {% endif %}
+  <p><span>💵</span> Harga Mobil: {{space['price']}} {{space['pay']}}</p>
   <p>
     <span>📍</span> Location:
     <a target="_blank" href="{{space['link']}}">{{space['link']}}</a>
   </p>
-
+<hr><br>
+  {% if space['status'] == "open" %}
   {% if session.get('token') %}
-  <br />
   <a href="/booking/{{space['name']}}" class="btn btn-primary">Pesan Sekarang</a>
   {% else %}
-  <br />
   <a href="/login" class="btn btn-warning">Login Dulu</a>
+  {% endif %}
+  {% else %}
+  <h2 style="color: red; font-style: italic;">Parking Space Closed</h2>
   {% endif %}
 </div>
 

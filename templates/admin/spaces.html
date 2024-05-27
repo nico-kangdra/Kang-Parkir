@@ -41,11 +41,7 @@
       {% if spaces %} {% for space in spaces.values() %}
       <div class="col-md-4 mb-4">
         <div class="card">
-          <img
-            src="{{space['image']}}"
-            class="card-img-top"
-            alt="Foto {{space['name']}}"
-          />
+          <img src="{{space['image']}}" class="card-img-top" alt="Foto {{space['name']}}" />
           <div class="card-body">
             <h5 class="card-title">{{space["name"]}}</h5>
             <p class="card-text">
@@ -54,33 +50,19 @@
             </p>
             <p class="card-text">Tipe: {{space["type"]|capitalize}}</p>
             <p class="card-text">Owner: {{space["owner"]}}</p>
-            <button
-              class="btn btn-primary"
-              onclick="lestgo(`{{space['name']}}`)"
-            >
+            <button class="btn btn-primary" onclick="lestgo(`{{space['name']}}`)">
               Set Owner
             </button>
             <form action="/setowner/{{ space['name'] }}" method="POST" hidden>
-              <input
-                type="text"
-                name="mails{{space['name']}}"
-                id="mails{{space['name']}}"
-              />
+              <input type="text" name="owner{{space['name']}}" id="owner{{space['name']}}" value="{{space['owner']}}"/>
+              <input type="text" name="mails{{space['name']}}" id="mails{{space['name']}}" />
               <button id="submitlah{{space['name']}}" type="submit">
                 Submit
               </button>
             </form>
-            <a
-              href="{{url_for('admin_spaces_get', name=space['name'])}}"
-              class="btn btn-success"
-              >Edit Parkiran</a
-            >
-            <a
-              href="{{url_for('delete_spaces_get', name=space['name'])}}"
-              class="btn btn-danger"
-              onclick="return confirmDelete()"
-              >Hapus Parkiran</a
-            >
+            <a href="{{url_for('admin_spaces_get', name=space['name'])}}" class="btn btn-success">Edit Parkiran</a>
+            <a href="{{url_for('delete_spaces_get', name=space['name'])}}" class="btn btn-danger"
+              onclick="return confirmDelete()">Hapus Parkiran</a>
             <a href="{{url_for('manage_slot_get', space=space['name'])}}" class="btn btn-secondary">Manage Slot</a>
           </div>
         </div>
@@ -91,61 +73,25 @@
   <div id="add-mode" style="display: none">
     <h1>Tambah Parkiran Baru</h1>
     <br />
-    <form
-      id="add-form"
-      method="post"
-      action="/admin/spaces"
-      enctype="multipart/form-data"
-    >
+    <form id="add-form" method="post" action="/admin/spaces" enctype="multipart/form-data">
       <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="info"
-          name="info"
-          value="new"
-          style="display: none"
-        />
+        <input type="text" class="form-control" id="info" name="info" value="new" style="display: none" />
       </div>
       <div class="form-group">
         <label for="name">Nama Parkiran:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="name"
-          name="name"
-          value=""
-        />
+        <input type="text" class="form-control" id="name" name="name" value="" />
       </div>
       <div class="form-group">
         <label for="hours">Jam Buka:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="hours"
-          name="hours"
-          value=""
-        />
+        <input type="text" class="form-control" id="hours" name="hours" value="" />
       </div>
       <div class="form-group">
         <label for="phone">Nomor Telepon:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="phone"
-          name="phone"
-          value=""
-        />
+        <input type="text" class="form-control" id="phone" name="phone" value="" />
       </div>
       <div class="form-group">
         <label for="location">Link Lokasi:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="location"
-          name="location"
-          value=""
-        />
+        <input type="text" class="form-control" id="location" name="location" value="" />
       </div>
       <div class="form-group">
         <label for="type">Tipe Parkiran:</label>
@@ -157,13 +103,7 @@
       <div class="form-row">
         <div class="form-group col-md-6 ">
           <label for="price">Harga:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="price"
-            name="price"
-            value=""
-          />
+          <input type="text" class="form-control" id="price" name="price" value="" />
         </div>
         <div class="form-group col-md-6">
           <label for="pay">Tipe Pembayaran:</label>
@@ -176,34 +116,16 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="latitude">Latitude:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="latitude"
-            name="latitude"
-            value=""
-          />
+          <input type="text" class="form-control" id="latitude" name="latitude" value="" />
         </div>
         <div class="form-group col-md-6">
           <label for="longitude">Longitude:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="longitude"
-            name="longitude"
-            value=""
-          />
+          <input type="text" class="form-control" id="longitude" name="longitude" value="" />
         </div>
       </div>
       <div class="form-group">
         <label for="image">Image:</label>
-        <input
-          type="file"
-          class="form-control"
-          id="image"
-          name="image"
-          accept="image/*"
-        />
+        <input type="file" class="form-control" id="image" name="image" accept="image/*" />
       </div>
       <button type="submit" class="btn btn-primary">Save Changes</button>
       <button type="button" id="cancel-add-btn" class="btn btn-secondary">

@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block main %}
+{% extends 'base.html' %}
+
+{% block main %}
 <style>
   .card {
     width: 100%;
@@ -19,8 +21,13 @@
   <h2>List Parkiran</h2>
   <br />
   <div class="row">
+    <div class="col-md-4 offset-md-4 mb-4">
+      <input type="text" id="searchInput" class="form-control" placeholder="Cari Parkiran">
+    </div>
+  </div>
+  <div class="row" id="spacesContainer">
     {% for space in spaces.values() %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4 mb-4 space-card">
       <div class="card">
         <img src="{{space['image']}}" class="card-img-top" alt="Foto {{space['name']}}" />
         <div class="card-body">
@@ -34,4 +41,20 @@
     {% endfor %}
   </div>
 </div>
-{% endblock main%}
+
+<script>
+  document.getElementById('searchInput').addEventListener('input', function() {
+    var filter = this.value.toLowerCase();
+    var spaceCards = document.querySelectorAll('.space-card');
+    
+    spaceCards.forEach(function(card) {
+      var spaceName = card.querySelector('.card-title').textContent.toLowerCase();
+      if (spaceName.includes(filter)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+</script>
+{% endblock main %}

@@ -8,7 +8,7 @@ import re
 
 # Initialize flask app
 app = Flask(__name__)
-app.secret_key = X[2]["secret"]
+app.secret_key = X[1]["secret"]
 WIB = timezone("Asia/Jakarta")
 
 # Set session to 2 weeks
@@ -25,7 +25,7 @@ def numerical_sort(values):
 
 @app.get("/")
 def home_get():
-    api_key = X[1]["api_key"]
+    api_key = X[0]["api_key"]
     spaces = get_space()
     return render_template("index.html", api_key=api_key, spaces=spaces, nav="home")
 

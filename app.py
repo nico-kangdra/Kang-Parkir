@@ -25,7 +25,7 @@ def numerical_sort(values):
 
 @app.get("/")
 def home_get():
-    api_key = X[0]["api_key"]
+    api_key = X[0]["apiKey"]
     spaces = get_space()
     return render_template("index.html", api_key=api_key, spaces=spaces, nav="home")
 
